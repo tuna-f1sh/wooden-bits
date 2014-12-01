@@ -116,7 +116,7 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   solidColor(0,0,0); // turn them all off
   pixels.show();
 
-  if ((hour == 12 || hour == 24 ) && minute == 0) {
+  if ((hour == 12 || hour == 0 ) && minute == 0) {
     rainbowCycle(25); // special edition hour for midday
   } else { // fade columns in and out
     for (int16_t j=0;j<=255;j+=5) {
