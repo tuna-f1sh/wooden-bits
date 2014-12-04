@@ -1,5 +1,6 @@
 BOARD_TAG    = uno
-#MCU = atmega328p
+# BOARD_TAG    = nano
+# MCU = atmega328p
 ARDUINO_LIBS = Time DS1307RTC Wire Adafruit_NeoPixel
 AVRDUDE_OPTS = -V -v -v
 #MONITOR_PORT = /dev/tty.SLAB*

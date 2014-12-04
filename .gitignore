@@ -1,5 +1,5 @@
 # Build folder
-code/build*
+bClock/build*
 
 # Exports
 *.dxf
