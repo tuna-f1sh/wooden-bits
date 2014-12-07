@@ -51,40 +51,40 @@ int main(int argc, char **argv) {
     sigaction(i, &sa, NULL);
   }
 
-	// Get the input args if any
-	int newbrightness = DEFAULT_BRIGHTNESS*100;
- 	if (argc == 2) {
-		if(sscanf (argv[1], "%i", &newbrightness)!=1){
-			printf ("Error, brightness must be an integer \n");
-			return 0;
-		}
-	} else if (argc == 3) {
-		if(sscanf (argv[1], "%i", &newbrightness)!=1){
-			printf ("Error, brightness must be an integer \n");
-			return 0;
-		}
-		if(sscanf (argv[2], "%i", &pulse_second) > 1){
-			printf ("Error, second pulsing must be an bool \n");
-			return 0;
+  // Get the input args if any
+  int newbrightness = DEFAULT_BRIGHTNESS*100;
+  if (argc == 2) {
+    if(sscanf (argv[1], "%i", &newbrightness)!=1){
+      printf ("Error, brightness must be an integer \n");
+      return 0;
+    }
+  } else if (argc == 3) {
+    if(sscanf (argv[1], "%i", &newbrightness)!=1){
+      printf ("Error, brightness must be an integer \n");
+      return 0;
+    }
+    if(sscanf (argv[2], "%i", &pulse_second) > 1){
+      printf ("Error, second pulsing must be an bool \n");
+      return 0;
     }
   } else if (argc == 4) {
-		if(sscanf (argv[1], "%i", &newbrightness)!=1){
-			printf ("Error, brightness must be an integer \n");
-			return 0;
-		}
-		if(sscanf (argv[2], "%i", &pulse_second) > 1){
-			printf ("Error, second pulsing must be an bool \n");
-			return 0;
+    if(sscanf (argv[1], "%i", &newbrightness)!=1){
+      printf ("Error, brightness must be an integer \n");
+      return 0;
     }
-		if(sscanf (argv[3], "%i", &rotate) > 1){
-			printf ("Error, rotate must be an bool \n");
-			return 0;
+    if(sscanf (argv[2], "%i", &pulse_second) > 1){
+      printf ("Error, second pulsing must be an bool \n");
+      return 0;
+    }
+    if(sscanf (argv[3], "%i", &rotate) > 1){
+      printf ("Error, rotate must be an bool \n");
+      return 0;
     }
   }
 
 
-	// Don't buffer console output
-	setvbuf(stdout, NULL, _IONBF, 0);
+  // Don't buffer console output
+  setvbuf(stdout, NULL, _IONBF, 0);
 
   // Set the number of pixels
   numLEDs = PIXEL_COLUMN*PIXEL_ROW;
@@ -262,36 +262,36 @@ void setPixel(uint8_t pixel, uint8_t set, Color_t c) {
   Clear the display and exit gracefully
 */
 void unicorn_exit(int status){
-	int i;
-	for (i = 0; i < numLEDs; i++){
-		setPixelColor(i,0,0,0);
-	}
-	show();
-	terminate(status);
+  int i;
+  for (i = 0; i < numLEDs; i++){
+    setPixelColor(i,0,0,0);
+  }
+  show();
+  terminate(status);
 }
 
 void initMatrixMap(uint16_t pixelMap[PIXEL_ROW][PIXEL_COLUMN], uint8_t rotate) {
-	uint8_t i; // row inc.
-	uint8_t j; // column inc.
-	uint16_t pixel_inc; // pixel number inc.
+  uint8_t i; // row inc.
+  uint8_t j; // column inc.
+  uint16_t pixel_inc; // pixel number inc.
 
-	/* What we're trying to draw (64 pixel unicorn hat grid) */
-	/* It's a snakes and ladders type arrangement for any matrix */
-	/*   {7 ,6 ,5 ,4 ,3 ,2 ,1 ,0 },*/
-	/*   {8 ,9 ,10,11,12,13,14,15},*/
-	/*   {23,22,21,20,19,18,17,16},*/
-	/*   {24,25,26,27,28,29,30,31},*/
-	/*   {39,38,37,36,35,34,33,32},*/
-	/*   {40,41,42,43,44,45,46,47},*/
-	/*   {55,54,53,52,51,50,49,48},*/
-	/*   {56,57,58,59,60,61,62,63}*/
-	/* */
+  /* What we're trying to draw (64 pixel unicorn hat grid) */
+  /* It's a snakes and ladders type arrangement for any matrix */
+  /*   {7 ,6 ,5 ,4 ,3 ,2 ,1 ,0 },*/
+  /*   {8 ,9 ,10,11,12,13,14,15},*/
+  /*   {23,22,21,20,19,18,17,16},*/
+  /*   {24,25,26,27,28,29,30,31},*/
+  /*   {39,38,37,36,35,34,33,32},*/
+  /*   {40,41,42,43,44,45,46,47},*/
+  /*   {55,54,53,52,51,50,49,48},*/
+  /*   {56,57,58,59,60,61,62,63}*/
+  /* */
 
-	// The cord either starts at 0 or length of row depending on whether it's rotated
+  // The cord either starts at 0 or length of row depending on whether it's rotated
   pixel_inc = rotate ? PIXEL_ROW : 0;
 
-	for (i = 0; i < PIXEL_COLUMN; i++) {
-	  for (j = 0; j < PIXEL_ROW; j++) {
+  for (i = 0; i < PIXEL_COLUMN; i++) {
+    for (j = 0; j < PIXEL_ROW; j++) {
       // We either increment or decrement depending on column due to snakes and ladders arrangement
       if (rotate) {
         pixelMap[i][j] = (i % 2 == 0) ? --pixel_inc : ++pixel_inc;
