@@ -27,9 +27,7 @@
   #define false 0
 #endif
 
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      64
-// matrix diamentions
+// pixel matrix diamentions (64 total for unicorn hat)
 #define PIXEL_COLUMN   8
 #define PIXEL_ROW      8
 
