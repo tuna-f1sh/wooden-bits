@@ -1,25 +1,74 @@
+//===================================================================================================
+//
+//01000010 01101001 01101110 01100001 01110010 01111001  01000011 01101100 01101111 01100011 01101011
+//______ _                          _____ _            _    
+//| ___ (_)                        /  __ \ |          | |   
+//| |_/ /_ _ __   __ _ _ __ _   _  | /  \/ | ___   ___| | __
+//| ___ \ | '_ \ / _` | '__| | | | | |   | |/ _ \ / __| |/ /
+//| |_/ / | | | | (_| | |  | |_| | | \__/\ | (_) | (__|   < 
+//\____/|_|_| |_|\__,_|_|   \__, |  \____/_|\___/ \___|_|\_\
+//                           __/ |                          
+//                          |___/                           
+//
+// Binary Clock
+// Originally made for Arduino controller in my 'Wooden Bits' project
+// John Whittington @j_whittington http://www.jbrengineering.co.uk 2014
+//
+// Compile using make then run ./bClock [brightness] [pulse_second] [rotate]. Designed for Raspberry Pi
+// and Pimoroni Unicorn Hat but code can scale to any size matrix. 'pixelMap' generator is useful for 
+// other functions other than this code.
+//
+// Arduino Libraries - Adafruit NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
+//                     DS1307RTC RTC: https://www.pjrc.com/teensy/td_libs_DS1307RTC.html
+//
+// References - Adafruit NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
+//
+//===================================================================================================
+
 #include <Wire.h>
 #include <Time.h>
 #include <DS1307RTC.h>
 #include <Adafruit_NeoPixel.h>
 #include "bClock.h"
 
+ /* ---- CONFIGURE ---- */
+/*==========================*/
+
 // delay for startup wipe
-#define WIPE_DELAY     50
+#define WIPE_DELAY     10
 // delay for quarter hour display
 #define QUARTER_WAIT   10000
+// number of pixels (row and column are defined in header)
+#define NUMPIXELS PIXEL_ROW*PIXEL_COLUMN
+// Width and height of square to show bit
+const static uint8_t width = PIXEL_ROW/4;
+const static uint8_t height = PIXEL_COLUMN/4;
+// Cordinate map of pixel init (gets filled by initMatrixMap)
+uint16_t pixelMap [PIXEL_ROW][PIXEL_COLUMN] = {{0}};
 // pulse at second intervals
-const bool pulse_second = 0;
+const static uint8_t pulse_second = false;
+// rotate the grid 90deg?
+const static uint8_t rotate = false;
+// brightness (0 darkest (off) - 255 retina searing)
+const static uint8_t brightness = 10;
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+/* ---- SETUP ---- */
+/*=====================*/
+
 void setup() {
-  /* Serial.begin(9600);*/
-  /* while (!Serial) ; // wait for serial*/
+  Serial.begin(9600);
+  while (!Serial) ; // wait for serial
   pixels.begin(); // This initializes the NeoPixel library.
+
+  // Create the matrix lookup map
+  initMatrixMap(pixelMap,rotate);
+
+  pixels.setBrightness(brightness);
 
   // wipe through rgb for LED debug
   colorWipe(pixels.Color(255,0,0),WIPE_DELAY);
@@ -28,26 +77,27 @@ void setup() {
   colorWipe(pixels.Color(0,0,0),WIPE_DELAY);
 }
 
+/* ---- LOOP ---- */
+/*====================*/
+
 void loop() {
   tmElements_t tm; // time struct holder
-  // snakes and ladders for column pixel index, the index refers to right most column
-  uint8_t colIndex[PIXEL_COLUMN] = {0,7,8,15};
   // nyble vector for matrix columns
   // [hour/10, hour/1, minute/10, minute/1]
-  byte bTime[PIXEL_COLUMN] = {B0000};
+  byte bTime[4] = {B0000};
 
   // get the time from RTC
   if (RTC.read(tm)) {
   } else {
     // rtc isn't reading
     if (RTC.chipPresent()) {
-      /* Serial.println("The DS1307 is stopped.  Please run the SetTime");*/
-      /* Serial.println("example to initialize the time and begin running.");*/
-      /* Serial.println();*/
+      Serial.println("The DS1307 is stopped.  Please run the SetTime");
+      Serial.println("example to initialize the time and begin running.");
+      Serial.println();
       solidColor(255,165,0); // all orange
     } else {
-      /* Serial.println("DS1307 read error!  Please check the circuitry.");*/
-      /* Serial.println();*/
+      Serial.println("DS1307 read error!  Please check the circuitry.");
+      Serial.println();
       solidColor(255,0,0); // all red
     }
     // error loop: wait 9s then try again
@@ -56,17 +106,17 @@ void loop() {
   }
 
   // convert the time to nybles for the matrix
-  pixelTime(tm, bTime, PIXEL_COLUMN);
+  pixelTime(tm, bTime);
 
   // debug
-  /* Serial.println("Hour Digit 1:");*/
-  /* Serial.println(bTime[3],BIN);*/
-  /* Serial.println("Hour Digit 2:");*/
-  /* Serial.println(bTime[2],BIN);*/
-  /* Serial.println("Minute Digit 1:");*/
-  /* Serial.println(bTime[1],BIN);*/
-  /* Serial.println("Minute Digit 2:");*/
-  /* Serial.println(bTime[0],BIN);*/
+  Serial.println("Hour Digit 1:");
+  Serial.println(bTime[3],BIN);
+  Serial.println("Hour Digit 2:");
+  Serial.println(bTime[2],BIN);
+  Serial.println("Minute Digit 1:");
+  Serial.println(bTime[1],BIN);
+  Serial.println("Minute Digit 2:");
+  Serial.println(bTime[0],BIN);
 
   // quarter hour indicator
   if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
@@ -74,17 +124,26 @@ void loop() {
   }
   // turn them all off for second indicator flash
   if (pulse_second) {
-    solidColor(0,0,0);
+    for (uint8_t x = 0; x < PIXEL_ROW; x += width) {
+      for (uint8_t y  = 0; y < PIXEL_COLUMN; y += height) {
+        setPixel(pixelMap[x][y], 1, pixels.Color(0,0,0));
+      }
+    }
+    pixels.show();
     delay(10);
   }
   // set the matrix to the binary time
-  setMatrix(bTime, colIndex, pixels.Color(255,255,255));
+  setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,255,255), pixels.Color(255,0,0));
   // wait a second before checking the time again
   delay(1000);
 
 }
 
-void pixelTime(tmElements_t tm, byte *bTime, uint8_t size) {
+ /* ---- CLOCK FUNCTIONS ----*/
+/*===============================*/
+
+// fills the binary array with nybles
+void pixelTime(tmElements_t tm, byte *bTime) {
   // convert the hour and minute into uint8
   uint8_t hour = tm.Hour;
   uint8_t minute = tm.Minute;
@@ -106,12 +165,16 @@ void pixelTime(tmElements_t tm, byte *bTime, uint8_t size) {
   }
 }
 
+// fills multiples 1/4 of matrix for 1/4 hour multiple
 void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
-  int8_t no_rows;
-  // light 4,8,12 or 16 pixels depending on the hour quarter (floored to be safe)
-  no_rows = (PIXEL_ROW * floor(minute / 15)) - 1;
+  uint8_t no_rows;
+  uint8_t y;
+  uint8_t x;
+  int16_t j;
+  // light number of rows depending on the hour quarter (floored to be safe)
+  no_rows = floor(minute / 15) * height;
   // one hour indicator is actually 0 but we want full display
-  no_rows = (no_rows == -1) ? 15 : no_rows;
+  no_rows = (no_rows == 0) ? (4 * height) : no_rows;
 
   solidColor(0,0,0); // turn them all off
   pixels.show();
@@ -119,17 +182,21 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   if ((hour == 12 || hour == 0 ) && minute == 0) {
     rainbowCycle(25); // special edition hour for midday
   } else { // fade columns in and out
-    for (int16_t j=0;j<=255;j+=5) {
-      for (uint8_t i=0;i<=no_rows;i++) {
-        setPixel(i,1,pixels.Color(0,0,j));
+    for (j = 0; j <= 255; j += 5) {
+      for (y = 0; y < no_rows; y++) {
+        for (x = 0; x < PIXEL_ROW; x++) {
+        setPixel(pixelMap[x][y],1,pixels.Color(0,0,j));
+        }
       }
       pixels.show();
       delay(10);
     }
-    delay(wait);
-    for (int16_t j=255;j>=0;j-=5) {
-      for (uint8_t i=0;i<=no_rows;i++) {
-        setPixel(i,1,pixels.Color(0,0,j));
+    delay(wait); // show for 10s
+    for (j = 255; j >= 0; j -= 5) {
+      for (y = 0; y < no_rows; y++) {
+        for (x = 0; x < PIXEL_ROW; x++) {
+        setPixel(pixelMap[x][y],1,pixels.Color(0,0,j));
+        }
       }
       pixels.show();
       delay(10);
@@ -137,22 +204,68 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   }
 }
 
-void setMatrix(byte bMatrix[PIXEL_COLUMN], uint8_t colIndex[PIXEL_COLUMN], uint32_t color) {
-  int8_t b;
+// sets the binary array to the matrix columns
+void setMatrix(byte bMatrix[], size_t size, uint32_t color1, uint32_t color2) {
+  uint8_t x; // row inc.
+  uint8_t y; // height inc.
+  uint8_t i; // binary set matrix
+  uint8_t yy; // full column inc.
+  uint8_t xx = 0; // full row inc.
 
-  for (uint8_t i=0;i <= PIXEL_COLUMN - 1;i++) {
-    for (uint8_t x=0;x <= PIXEL_COLUMN - 1;x++) {
-    /* for (uint8_t x=0;x <= 3;x++) {*/
-      b = ((x % 2) == 0) ? 1 : -1; // snakes and ladders pixel arrangement alternates between taking and adding one
-      setPixel(colIndex[x]+(i*b),((bMatrix[i] >> x) & 1),color);
+  for ( i = 0; i < size; i++) {
+    for (yy = 0;yy < PIXEL_COLUMN; yy += height) {
+      for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+          if (x == 0 && y == 0) {
+            setPixel(pixelMap[xx+x][yy+y],((bMatrix[i] >> yy/height) & 1),color1);
+          } else {
+            setPixel(pixelMap[xx+x][yy+y],((bMatrix[i] >> yy/height) & 1),color2);
+          }
+        }
+      }
     }
+    xx += width;
   }
-
   pixels.show();
 }
 
+// creates a cordinate map of pixels in the matrix
+void initMatrixMap(uint16_t pixelMap[PIXEL_ROW][PIXEL_COLUMN], uint8_t rotate) {
+  uint8_t i; // row inc.
+  uint8_t j; // column inc.
+  uint16_t pixel_inc; // pixel number inc.
+
+  /* What we're trying to draw (64 pixel unicorn hat grid) */
+  /* It's a snakes and ladders type arrangement for any matrix */
+  /*   {7 ,6 ,5 ,4 ,3 ,2 ,1 ,0 },*/
+  /*   {8 ,9 ,10,11,12,13,14,15},*/
+  /*   {23,22,21,20,19,18,17,16},*/
+  /*   {24,25,26,27,28,29,30,31},*/
+  /*   {39,38,37,36,35,34,33,32},*/
+  /*   {40,41,42,43,44,45,46,47},*/
+  /*   {55,54,53,52,51,50,49,48},*/
+  /*   {56,57,58,59,60,61,62,63}*/
+  /* */
+
+  // The cord either starts at 0 or length of row depending on whether it's rotated
+  pixel_inc = rotate ? PIXEL_ROW : 0;
+
+  for (i = 0; i < PIXEL_COLUMN; i++) {
+    for (j = 0; j < PIXEL_ROW; j++) {
+      // We either increment or decrement depending on column due to snakes and ladders arrangement
+      if (rotate) {
+        pixelMap[i][j] = (i % 2 == 0) ? --pixel_inc : ++pixel_inc;
+      } else {
+        pixelMap[j][i] = (i % 2 != 0) ? pixel_inc-- : pixel_inc++;
+      }
+    }
+    pixel_inc += PIXEL_ROW;
+    (i % 2 == 0) ? pixel_inc-- : pixel_inc++;
+  }
+}
+
 // set the matrix to a solid colour
-void solidColor(uint16_t r,uint16_t g,uint16_t b) {
+void solidColor(uint32_t r,uint32_t g,uint32_t b) {
   for (uint16_t i=0;i<NUMPIXELS;i++) {
     pixels.setPixelColor(i, pixels.Color(r,g,b));
   }
@@ -167,6 +280,9 @@ void setPixel(uint8_t pixel, uint8_t set, uint32_t c) {
     pixels.setPixelColor(pixel, pixels.Color(0,0,0));
   }
 }
+
+ /* ---- ADAFRUIT NEOPIXEL FUNCTIONS ---- */
+/*============================================*/
 
 // Fill the dots one after the other with a color (Adafruit)
 void colorWipe(uint32_t c, uint8_t wait) {

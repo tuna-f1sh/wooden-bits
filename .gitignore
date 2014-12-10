@@ -34,6 +34,8 @@ bClock/build*
 *.app
 
 # Temp
+tags
+.tags
 *~
 *.swp
 *DS_Store
