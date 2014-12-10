@@ -12,7 +12,6 @@ ______ _                          _____ _            _
 ```
 
 # Binary Clock
--------------------------------------
 
 Originally made for Arduino controller in my *Wooden Bits* project, this is a
 binary clock for WS2812 LEDS that scales to any size pixel matrix. It includes
@@ -20,11 +19,10 @@ a function for generating the 'snakes and ladders' arrangment of pixels, which
 can be used as a map reference for other functions.
 
 ## Requirements
--------------------------------------
 
 ### Hardware
 
-* Arduino or similar attiny328/Raspberry Pi.
+* Arduino/attiny328 or Raspberry Pi.
 * Pixel grid, user created or Adafruit NeoPixel, Pimoroni Unicorn Hat. Should
   be connected to pin 6 on Arduino or pin 18 on rPi by default.
 * For Arduino you'll need a DS1307RTC chip, already set with the time (see
@@ -36,7 +34,6 @@ can be used as a map reference for other functions.
 * **DS1307RTC RTC:** https://www.pjrc.com/teensy/td_libs_DS1307RTC.html
 
 ## Build
--------------------------------------
 
 ### Arduino
 
@@ -50,12 +47,11 @@ You can defined a flash on seconds 'pulse_second', rotated display 'rotate' and 
 
 ### Raspberry Pi
 
-Compile using `make` then run `./bClock [brightness] [pulse_second] [rotate]`. Designed for Raspberry Pi
+Compile using `make` then run `sudo ./bClock [brightness] [pulse_second] [rotate]`. Designed for Raspberry Pi
 and Pimoroni Unicorn Hat but code can scale to any size matrix. `pixelMap` generator is useful for 
 other functions other than this code.
 
 ## References
--------------------------------------
 
 * **Adafruit NeoPixel library:** https://github.com/adafruit/Adafruit_NeoPixel
 * **Unicorn Hat Driver:** https://github.com/pimoroni/UnicornHat/tree/master/c/unicorn

@@ -1,4 +1,4 @@
-//===================================================================================================
+/*===================================================================================================
 //
 //01000010 01101001 01101110 01100001 01110010 01111001  01000011 01101100 01101111 01100011 01101011
 //______ _                          _____ _            _    
@@ -14,14 +14,14 @@
 // Originally made for Arduino controller in my 'Wooden Bits' project
 // John Whittington @j_whittington http://www.jbrengineering.co.uk 2014
 //
-// Compile using make then run ./bClock [brightness] [pulse_second] [rotate]. Designed for Raspberry Pi
+// Compile using make then run sudo ./bClock [brightness] [pulse_second] [rotate]. Designed for Raspberry Pi
 // and Pimoroni Unicorn Hat but code can scale to any size matrix. 'pixelMap' generator is useful for 
 // other functions other than this code.
 //
 // References - Unicorn Hat Driver: https://github.com/pimoroni/UnicornHat/tree/master/c/unicorn
 //              WS2812 Driver: https://github.com/626Pilot/RaspberryPi-NeoPixel-WS2812
 //
-//===================================================================================================
+//===================================================================================================*/
 
 #include "bClock.h"
 
