@@ -14,9 +14,13 @@
 // Originally made for Arduino controller in my 'Wooden Bits' project
 // John Whittington @j_whittington http://www.jbrengineering.co.uk 2014
 //
-// Compile using make then run ./bClock [brightness] [pulse_second] [rotate]. Designed for Raspberry Pi
-// and Pimoroni Unicorn Hat but code can scale to any size matrix. 'pixelMap' generator is useful for 
-// other functions other than this code.
+// Compile using the Arduino IDE or using the Makefile. Using the makefile reqruies 'Arduino.mk':
+// https://github.com/sudar/Arduino-Makefile
+// 
+// Set the number of pixels in each row and column in 'bClock.h'. The clock will automatically scale
+// the binary bits to the pixel grid - thanks to the pixelMap generation.
+// 
+// You can defined a flash on seconds 'pulse_second', rotated display 'rotate' and brightness
 //
 // Arduino Libraries - Adafruit NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
 //                     DS1307RTC RTC: https://www.pjrc.com/teensy/td_libs_DS1307RTC.html
