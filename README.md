@@ -13,10 +13,21 @@ ______ _                          _____ _            _
 
 # Binary Clock
 
-Originally made for Arduino controller in my *Wooden Bits* project, this is a
+![Wooden Bits](http://i2.wp.com/engineer.john-whittington.co.uk/wp-content/uploads/2014/12/wooden-bits.gif)
+
+Originally made for Arduino controller in my [*Wooden Bits*](http://wp.me/p2C0Bi-7R) project, this is a
 binary clock for WS2812 LEDS that scales to any size pixel matrix. It includes
 a function for generating the 'snakes and ladders' arrangment of pixels, which
 can be used as a map reference for other functions.
+
+## Features
+
+* Version for Arduino/Attiny328 and Raspberry Pi.
+* Scales to any size WS2812 matrix.
+* `setMatrix` for sending any binary size to display.
+* `initMatrixMap` for creating lookup map of disaply.
+
+For more details, see my blog post: http://wp.me/p2C0Bi-7R
 
 ## Requirements
 
@@ -46,6 +57,8 @@ the binary bits to the pixel grid - thanks to the pixelMap generation.
 You can defined a flash on seconds 'pulse_second', rotated display 'rotate' and brightness
 
 ### Raspberry Pi
+
+![Wooden Bits](http://engineer.john-whittington.co.uk/wp-content/uploads/2014/12/unicorn-hat.gif)
 
 Compile using `make` then run `sudo ./bClock [brightness] [pulse_second] [rotate]`. Designed for Raspberry Pi
 and Pimoroni Unicorn Hat but code can scale to any size matrix. `pixelMap` generator is useful for 
