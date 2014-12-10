@@ -1,8 +1,10 @@
 # Build folder
 bClock/build*
+raspberryPi/bClock
 
 # Exports
 *.dxf
+*.scad
 
 # Compiled Object files
 *.slo
