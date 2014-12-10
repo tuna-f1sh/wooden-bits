@@ -13,7 +13,7 @@ ______ _                          _____ _            _
 
 # Binary Clock
 
-![Wooden Bits](http://i2.wp.com/engineer.john-whittington.co.uk/wp-content/uploads/2014/12/wooden-bits.gif)
+![Wooden Bits](http://i.imgur.com/n8bL5TM.gif)
 
 Originally made for Arduino controller in my [*Wooden Bits*](http://wp.me/p2C0Bi-7R) project, this is a
 binary clock for WS2812 LEDS that scales to any size pixel matrix. It includes
@@ -58,7 +58,7 @@ You can defined a flash on seconds 'pulse_second', rotated display 'rotate' and 
 
 ### Raspberry Pi
 
-![Wooden Bits](http://engineer.john-whittington.co.uk/wp-content/uploads/2014/12/unicorn-hat.gif)
+![Wooden Bits](http://i.imgur.com/KnXqW3E.gif)
 
 Compile using `make` then run `sudo ./bClock [brightness] [pulse_second] [rotate]`. Designed for Raspberry Pi
 and Pimoroni Unicorn Hat but code can scale to any size matrix. `pixelMap` generator is useful for 
