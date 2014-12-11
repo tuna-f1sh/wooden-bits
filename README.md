@@ -24,7 +24,12 @@ can be used as a map reference for other functions.
 
 * Version for Arduino/Attiny328 and Raspberry Pi.
 * Scales to any size WS2812 matrix.
-* `setMatrix` for sending any binary size to display.
+* Ability to rotate display.
+* Ability to set second indicator pulsing.
+* Quarter hour indicator fills n/quarter rows of the display blue (n is the
+  quater multiple).
+* Full rainbow at midday and midnight.
+* `setMatrix` for sending any binary size to display; not just time.
 * `initMatrixMap` for creating lookup map of disaply.
 
 For more details, see my blog post: http://wp.me/p2C0Bi-7R
