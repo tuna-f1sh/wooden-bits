@@ -34,6 +34,10 @@ can be used as a map reference for other functions.
 
 For more details, see my blog post: http://wp.me/p2C0Bi-7R
 
+You also drive a Unicorn Hat with it:
+
+![Unicorn Hat Driven by Arduino](http://engineer.john-whittington.co.uk/wp-content/uploads/2014/12/IMG_0929.jpg)
+
 ## Requirements
 
 ### Hardware
