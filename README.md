@@ -69,6 +69,13 @@ Compile using `make` then run `sudo ./bClock [brightness] [pulse_second] [rotate
 and Pimoroni Unicorn Hat but code can scale to any size matrix. `pixelMap` generator is useful for 
 other functions other than this code.
 
+### Open SCAD
+
+Compile within Open SCAD and export as .dxf. The comments explain how to
+export the various different layout options. The designs are supplied for personal
+use only under Creative Commons Attribution-NonCommercial 4.0 International
+License.
+
 ## References
 
 * **Adafruit NeoPixel library:** https://github.com/adafruit/Adafruit_NeoPixel

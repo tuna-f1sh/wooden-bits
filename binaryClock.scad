@@ -1,3 +1,9 @@
+// Wooden Bits by John Whittington - www.jbrengineering.co.uk
+// http://engineer.john-whittington.co.uk/2014/12/wooden-bits-binary-clock/
+//
+// This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/4.0/// 
+// Please include this header with any modification.
+
 // Laser cutter beam kerf
 LaserBeamDiameter = 0.23;
 
