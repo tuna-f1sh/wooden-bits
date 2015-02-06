@@ -4,7 +4,7 @@ raspberryPi/bClock
 
 # Exports
 *.dxf
-*.scad
+*.gif
 
 # Compiled Object files
 *.slo

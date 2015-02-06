@@ -39,7 +39,7 @@
 /*==========================*/
 
 // delay for startup wipe
-#define WIPE_DELAY     10
+#define WIPE_DELAY     50
 // delay for quarter hour display
 #define QUARTER_WAIT   10000
 // number of pixels (row and column are defined in header)

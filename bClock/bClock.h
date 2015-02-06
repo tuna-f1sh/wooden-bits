@@ -6,8 +6,8 @@
 // Which pin on the Arduino is connected to the NeoPixels?
 #define PIN            6
 // matrix diamentions
-#define PIXEL_COLUMN   8
-#define PIXEL_ROW      8
+#define PIXEL_COLUMN   4
+#define PIXEL_ROW      4
 
 #ifndef true
   #define true 1
