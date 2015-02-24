@@ -1,33 +1,35 @@
-//===================================================================================================
-//
-//01000010 01101001 01101110 01100001 01110010 01111001  01000011 01101100 01101111 01100011 01101011
-//______ _                          _____ _            _    
-//| ___ (_)                        /  __ \ |          | |   
-//| |_/ /_ _ __   __ _ _ __ _   _  | /  \/ | ___   ___| | __
-//| ___ \ | '_ \ / _` | '__| | | | | |   | |/ _ \ / __| |/ /
-//| |_/ / | | | | (_| | |  | |_| | | \__/\ | (_) | (__|   < 
-//\____/|_|_| |_|\__,_|_|   \__, |  \____/_|\___/ \___|_|\_\
-//                           __/ |                          
-//                          |___/                           
-//
-// Binary Clock
-// Originally made for Arduino controller in my 'Wooden Bits' project
-// John Whittington @j_whittington http://www.jbrengineering.co.uk 2014
-//
-// Compile using the Arduino IDE or using the Makefile. Using the makefile reqruies 'Arduino.mk':
-// https://github.com/sudar/Arduino-Makefile
-// 
-// Set the number of pixels in each row and column in 'bClock.h'. The clock will automatically scale
-// the binary bits to the pixel grid - thanks to the pixelMap generation.
-// 
-// You can defined a flash on seconds 'pulse_second', rotated display 'rotate' and brightness
-//
-// Arduino Libraries - Adafruit NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
-//                     DS1307RTC RTC: https://www.pjrc.com/teensy/td_libs_DS1307RTC.html
-//
-// References - Adafruit NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
-//
-//===================================================================================================
+/*
+===================================================================================================
+
+01000010 01101001 01101110 01100001 01110010 01111001  01000011 01101100 01101111 01100011 01101011
+______ _                          _____ _            _    
+| ___ (_)                        /  __ \ |          | |   
+| |_/ /_ _ __   __ _ _ __ _   _  | /  \/ | ___   ___| | __
+| ___ \ | '_ \ / _` | '__| | | | | |   | |/ _ \ / __| |/ /
+| |_/ / | | | | (_| | |  | |_| | | \__/\ | (_) | (__|   < 
+\____/|_|_| |_|\__,_|_|   \__, |  \____/_|\___/ \___|_|\_\
+                           __/ |                          
+                          |___/                           
+
+ Binary Clock
+ Originally made for Arduino controller in my 'Wooden Bits' project
+ John Whittington @j_whittington http://www.jbrengineering.co.uk 2014
+
+ Compile using the Arduino IDE or using the Makefile. Using the makefile reqruies 'Arduino.mk':
+ https://github.com/sudar/Arduino-Makefile
+ "
+ Set the number of pixels in each row and column in 'bClock.h'. The clock will automatically scale
+ the binary bits to the pixel grid - thanks to the pixelMap generation.
+ 
+ You can defined a flash on seconds 'pulse_second', rotated display 'rotate' and brightness
+
+ Arduino Libraries - Adafruit NeoPixel: https://github.com/adafruit/Adafruit_NeoPixel
+                     DS1307RTC RTC: https://www.pjrc.com/teensy/td_libs_DS1307RTC.html
+
+ References - Adafruit NeoPixel library: https://github.com/adafruit/Adafruit_NeoPixel
+
+===================================================================================================
+*/
 
 #include <Wire.h>
 #include <Time.h>
@@ -54,7 +56,9 @@ const static uint8_t pulse_second = false;
 // rotate the grid 90deg?
 const static uint8_t rotate = false;
 // brightness (0 darkest (off) - 255 retina searing)
-const static uint8_t brightness = 10;
+const static uint8_t brightness = 255;
+// set time flag from ISR
+uint8_t flag = false;
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
@@ -65,6 +69,8 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 /*=====================*/
 
 void setup() {
+  attachInterrupt(0, setISR, RISING);
+
   Serial.begin(9600);
   while (!Serial) ; // wait for serial
   pixels.begin(); // This initializes the NeoPixel library.
@@ -112,15 +118,19 @@ void loop() {
   // convert the time to nybles for the matrix
   pixelTime(tm, bTime);
 
+  if (flag) {
+    setBClock(tm, bTime, sizeof(bTime));
+  }
+
   // debug
-  Serial.println("Hour Digit 1:");
-  Serial.println(bTime[3],BIN);
-  Serial.println("Hour Digit 2:");
-  Serial.println(bTime[2],BIN);
-  Serial.println("Minute Digit 1:");
-  Serial.println(bTime[1],BIN);
-  Serial.println("Minute Digit 2:");
-  Serial.println(bTime[0],BIN);
+  /* Serial.println("Hour Digit 1:");*/
+  /* Serial.println(bTime[0],BIN);*/
+  /* Serial.println("Hour Digit 2:");*/
+  /* Serial.println(bTime[1],BIN);*/
+  /* Serial.println("Minute Digit 1:");*/
+  /* Serial.println(bTime[2],BIN);*/
+  /* Serial.println("Minute Digit 2:");*/
+  /* Serial.println(bTime[3],BIN);*/
 
   // quarter hour indicator
   if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
@@ -268,6 +278,63 @@ void initMatrixMap(uint16_t pixelMap[PIXEL_ROW][PIXEL_COLUMN], uint8_t rotate) {
   }
 }
 
+void setBClock(tmElements_t &tm, byte *bTime, uint8_t size) {
+  uint32_t entry = millis(); // entry time - reset each button press
+  uint32_t hold = millis(); // hold timer to increase time change
+  uint32_t debounce = 0; // debouce holder
+  uint8_t dperiod = 200; // debouce period
+  uint8_t state; // button state
+
+  // disable interrupts to use the button
+  noInterrupts();
+
+  // run for 5s then save the time to RTC
+  while (millis() - entry < 5000) {
+
+    // set the matrix to the binary time for user to see curret setting
+    pixels.clear();
+    setMatrix(bTime, size/sizeof(bTime[1]), pixels.Color(255,0,0), pixels.Color(255,0,0));
+    
+    state = digitalRead(2);
+
+    if (state) {
+
+      if (millis() - hold > 1000) {
+        dperiod = 40;
+      } else {
+        dperiod = 200;
+      }
+
+      if ((millis() - debounce) > dperiod ) {
+        entry = millis();
+
+        tm.Minute++;
+
+        if (tm.Minute == 60) {
+          tm.Hour++;
+          tm.Minute = 0;
+          if (tm.Hour == 24) {
+            tm.Hour = 0;
+          }
+        }
+
+        debounce = entry;
+      }
+
+    } else {
+      hold = millis(); // reset the hold button as hasn't been pressed
+    }
+
+    pixelTime(tm, bTime);
+  }
+
+  // save to RTC, clear ISR flag and resume interrupts
+  RTC.write(tm);
+  flag = false;
+  interrupts();
+
+}
+
 // set the matrix to a solid colour
 void solidColor(uint32_t r,uint32_t g,uint32_t b) {
   for (uint16_t i=0;i<NUMPIXELS;i++) {
@@ -335,4 +402,15 @@ uint32_t Wheel(byte WheelPos) {
    WheelPos -= 170;
    return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
+}
+
+void setISR(void) {
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+
+  // debouce
+  if (interrupt_time - last_interrupt_time > 200)
+    flag = true;
+
+  last_interrupt_time = interrupt_time;
 }
