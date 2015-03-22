@@ -8,6 +8,9 @@
 // matrix diamentions
 #define PIXEL_COLUMN   4
 #define PIXEL_ROW      4
+// RTC chip type
+#define CHIP_DS3232RTC
+// #define CHIP_DS1307RTC
 
 #ifndef true
   #define true 1

@@ -50,14 +50,16 @@ middle = 0; // whether to make cable holes on top and bottom for middle sections
 lengthSheet = parameterCurve+lengthSection*2+LaserBeamDiameter+materialThickness*2; // comment out for one piece
 single = 1;
 
-echo(lengthSection);
-echo(lengthSheet);
+echo("Area Wood:");
+echo(( (spacing+lengthSheet)*4 )*((spacing+materialThickness+lightHeight)*4));
+echo("Acrylic Area:");
+echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 
 // comment uncomment for different dxf exports to cut wood sections of acrylic diffusers
 /* fullPrint();*/
-/* acrylic();*/
+acrylic();
 /* wood();*/
-fullWood();
+/* fullWood();*/
 
 // --- END EXPORT ---
 

@@ -33,9 +33,16 @@ ______ _                          _____ _            _
 
 #include <Wire.h>
 #include <Time.h>
-#include <DS1307RTC.h>
 #include <Adafruit_NeoPixel.h>
 #include "bClock.h"
+#ifdef CHIP_DS1307RTC
+  #include <DS1307RTC.h>
+  #define RTC_RETURN 1
+#endif
+#ifdef CHIP_DS3232RTC
+  #include <DS3232RTC.h>
+  #define RTC_RETURN 0
+#endif
 
  /* ---- CONFIGURE ---- */
 /*==========================*/
@@ -97,19 +104,12 @@ void loop() {
   byte bTime[4] = {B0000};
 
   // get the time from RTC
-  if (RTC.read(tm)) {
+  if (RTC.read(tm) == RTC_RETURN) {
   } else {
     // rtc isn't reading
-    if (RTC.chipPresent()) {
-      Serial.println("The DS1307 is stopped.  Please run the SetTime");
-      Serial.println("example to initialize the time and begin running.");
-      Serial.println();
-      solidColor(255,165,0); // all orange
-    } else {
-      Serial.println("DS1307 read error!  Please check the circuitry.");
-      Serial.println();
-      solidColor(255,0,0); // all red
-    }
+    Serial.println("RTC read error!  Please check the circuitry.");
+    Serial.println();
+    solidColor(255,0,0); // all red
     // error loop: wait 9s then try again
     delay(9000);
     return;

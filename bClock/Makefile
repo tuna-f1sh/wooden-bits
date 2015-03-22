@@ -4,11 +4,11 @@ BOARD_TAG    = pro
 MCU = atmega328p
 F_CPU = 16000000
 AVRDUDE_ARD_BAUDRATE = 57600
-
-ARDUINO_LIBS = Time DS1307RTC Wire Adafruit_NeoPixel
-AVRDUDE_OPTS = -V -v -v
-# FTDI
+# # FTDI
 MONITOR_PORT = /dev/tty.SLAB*
+
+ARDUINO_LIBS = Time DS3232RTC Wire Adafruit_NeoPixel
+AVRDUDE_OPTS = -V
 
 # ARDUINO_QUIET = 1
 
