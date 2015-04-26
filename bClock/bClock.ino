@@ -31,9 +31,11 @@ ______ _                          _____ _            _
 ===================================================================================================
 */
 
+#include <SPI.h>
 #include <Wire.h>
 #include <Time.h>
 #include <Adafruit_NeoPixel.h>
+#include <Adafruit_BLE_UART.h>
 #include "bClock.h"
 #ifdef CHIP_DS1307RTC
   #include <DS1307RTC.h>
@@ -71,6 +73,105 @@ uint8_t flag = false;
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+// Adafruit BLE
+Adafruit_BLE_UART bluart = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
+
+/**************************************************************************/
+/*!
+    This function is called whenever select ACI events happen
+*/
+/**************************************************************************/
+void aciCallback(aci_evt_opcode_t event)
+{
+  switch(event)
+  {
+    case ACI_EVT_DEVICE_STARTED:
+      Serial.println(F("Advertising started"));
+      break;
+    case ACI_EVT_CONNECTED:
+      Serial.println(F("Connected!"));
+      break;
+    case ACI_EVT_DISCONNECTED:
+      Serial.println(F("Disconnected or advertising timed out"));
+      break;
+    default:
+      break;
+  }
+}
+
+/**************************************************************************/
+/*!
+    This function is called whenever data arrives on the RX channel
+*/
+/**************************************************************************/
+void rxCallback(uint8_t *buffer, uint8_t len)
+{
+  uint8_t h1,h2,m1,m2;
+  uint16_t temp, colour;
+  byte bTemp[4] = {B0000};
+  tmElements_t tm; // time struct holder
+
+  Serial.print(F("Received "));
+  Serial.print(len);
+  Serial.print(F(" bytes: "));
+  for(int i=0; i<len; i++)
+   Serial.print((char)buffer[i]); 
+
+  Serial.print(F(" ["));
+
+  for(int i=0; i<len; i++)
+  {
+    Serial.print(" 0x"); Serial.print((char)buffer[i], HEX); 
+  }
+  Serial.println(F(" ]"));
+
+  for(int i=1; i<len; i++)
+  {
+    if ('0' <= buffer[i] &&  buffer[i] <= '9') {
+      ;
+    } else {
+      Serial.println("Invalid time, should be format hhmm");
+      return;
+    }
+  }
+
+  h1 = (buffer[1] - 0x30) * 10;
+  h2 = (buffer[2] - 0x30);
+  m1 = (buffer[3] - 0x30) * 10;
+  m2 = (buffer[4] - 0x30);
+  tm.Hour = h1 + h2;
+  tm.Minute = m1 + m2;
+  tm.Second = 0;
+
+  switch (buffer[0]) {
+    case 's':
+      RTC.write(tm);
+      pixelTime(tm, bTemp);
+      setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), pixels.Color(0,255,0), pixels.Color(255,255,255));
+      delay(1000);
+      Serial.println("Time set!");
+      break;
+    case 'a':
+      RTC.setAlarm(ALM2_MATCH_HOURS, (m1+m2), (h1+h2), 0);
+      pixelTime(tm, bTemp);
+      setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), pixels.Color(255,140,0), pixels.Color(255,255,255));
+      delay(1000);
+      Serial.println("Alarm set!");
+      break;
+    case 't':
+      temp = (RTC.temperature() / 4);
+      Serial.print(temp);Serial.println("degC");
+      tm.Minute = temp;
+      tm.Hour = 0;
+      colour = map(temp, 0, 30, 85, 0);
+      pixelTime(tm, bTemp);
+      setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), Wheel(colour), pixels.Color(255,255,255));
+      delay(10000);
+      break;
+    default:
+      Serial.println("Invalid setting!");
+  }
+}
 
 /* ---- SETUP ---- */
 /*=====================*/
@@ -80,6 +181,10 @@ void setup() {
 
   Serial.begin(9600);
   while (!Serial) ; // wait for serial
+  bluart.setRXcallback(rxCallback);
+  bluart.setACIcallback(aciCallback);
+  bluart.setDeviceName("WoodBit"); /* 7 characters max! */
+  bluart.begin();
   pixels.begin(); // This initializes the NeoPixel library.
 
   // Create the matrix lookup map
@@ -99,6 +204,7 @@ void setup() {
 
 void loop() {
   tmElements_t tm; // time struct holder
+  int i = 0;
   // nyble vector for matrix columns
   // [hour/10, hour/1, minute/10, minute/1]
   byte bTime[4] = {B0000};
@@ -115,11 +221,25 @@ void loop() {
     return;
   }
 
+  // poll BLE
+  bluart.pollACI();
+
   // convert the time to nybles for the matrix
   pixelTime(tm, bTime);
 
   if (flag) {
     setBClock(tm, bTime, sizeof(bTime));
+  }
+
+  if (RTC.alarm(ALARM_2) ) {
+    Serial.println("Alarm!");
+    while (i < 30) {
+      setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,140,0), pixels.Color(255,255,255));
+      delay(500);
+      solidColor(0,0,0);
+      delay(500);
+      i++;
+    }
   }
 
   // debug
@@ -149,7 +269,7 @@ void loop() {
   // set the matrix to the binary time
   setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,255,255), pixels.Color(255,0,0));
   // wait a second before checking the time again
-  delay(1000);
+  /* delay(1000);*/
 
 }
 
@@ -329,6 +449,7 @@ void setBClock(tmElements_t &tm, byte *bTime, uint8_t size) {
   }
 
   // save to RTC, clear ISR flag and resume interrupts
+  tm.Second = 0;
   RTC.write(tm);
   flag = false;
   interrupts();

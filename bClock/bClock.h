@@ -11,6 +11,10 @@
 // RTC chip type
 #define CHIP_DS3232RTC
 // #define CHIP_DS1307RTC
+// Bluetooth LE
+#define ADAFRUITBLE_REQ 10
+#define ADAFRUITBLE_RDY 3
+#define ADAFRUITBLE_RST 9
 
 #ifndef true
   #define true 1
