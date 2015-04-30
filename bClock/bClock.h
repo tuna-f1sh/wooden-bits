@@ -6,8 +6,8 @@
 // Which pin on the Arduino is connected to the NeoPixels?
 #define PIN            6
 // matrix diamentions
-#define PIXEL_COLUMN   4
-#define PIXEL_ROW      4
+#define PIXEL_COLUMN   8
+#define PIXEL_ROW      8
 // RTC chip type
 #define CHIP_DS3232RTC
 // #define CHIP_DS1307RTC
@@ -17,6 +17,9 @@
   #define false 0
 #endif
 
+void processHTTP();
+String sendData(String command, const uint32_t timeout, uint8_t debug);
+String recieveData(const uint32_t timeout, uint8_t debug);
 // converts tm struct to binary nybles
 void pixelTime(tmElements_t tm, byte *bTime);
 // quarter hour row indication

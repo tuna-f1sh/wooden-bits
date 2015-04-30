@@ -1,13 +1,13 @@
-# BOARD_TAG    = uno
+BOARD_TAG    = uno
 # mini settings
-BOARD_TAG    = pro
-MCU = atmega328p
-F_CPU = 16000000
-AVRDUDE_ARD_BAUDRATE = 57600
+# BOARD_TAG    = pro
+# MCU = atmega328p
+# F_CPU = 16000000
+# AVRDUDE_ARD_BAUDRATE = 57600
 # # FTDI
-MONITOR_PORT = /dev/tty.SLAB*
+# MONITOR_PORT = /dev/tty.SLAB*
 
-ARDUINO_LIBS = Time DS3232RTC Wire Adafruit_NeoPixel
+ARDUINO_LIBS = Time DS3232RTC Wire Adafruit_NeoPixel SoftwareSerial
 AVRDUDE_OPTS = -V
 
 # ARDUINO_QUIET = 1
