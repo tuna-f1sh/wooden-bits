@@ -76,6 +76,9 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 // Adafruit BLE
 Adafruit_BLE_UART bluart = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
 
+// main clock colour
+uint32_t main_colour = pixels.Color(255,255,255);
+
 /**************************************************************************/
 /*!
     This function is called whenever select ACI events happen
@@ -107,7 +110,7 @@ void aciCallback(aci_evt_opcode_t event)
 void rxCallback(uint8_t *buffer, uint8_t len)
 {
   uint8_t h1,h2,m1,m2;
-  uint16_t temp, colour;
+  uint16_t temp, colour, r, g, b;
   byte bTemp[4] = {B0000};
   tmElements_t tm; // time struct holder
 
@@ -168,6 +171,13 @@ void rxCallback(uint8_t *buffer, uint8_t len)
       setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), Wheel(colour), pixels.Color(255,255,255));
       delay(10000);
       break;
+    case 'c':
+      r = ((buffer[1] - 0x30) * 100) + ((buffer[2] - 0x30) * 10) + (buffer[3] - 0x30);
+      g = ((buffer[4] - 0x30) * 100) + ((buffer[5] - 0x30) * 10) + (buffer[6] - 0x30);
+      b = ((buffer[7] - 0x30) * 100) + ((buffer[8] - 0x30) * 10) + (buffer[9] - 0x30);
+      if ( (r <= 255) & (g <= 255) & (b <= 255) ) {
+        main_colour = pixels.Color(r, g, b);
+      }
     default:
       Serial.println("Invalid setting!");
   }
@@ -267,7 +277,7 @@ void loop() {
     delay(10);
   }
   // set the matrix to the binary time
-  setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,255,255), pixels.Color(255,0,0));
+  setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), main_colour, pixels.Color(255,0,0));
   // wait a second before checking the time again
   /* delay(1000);*/
 
