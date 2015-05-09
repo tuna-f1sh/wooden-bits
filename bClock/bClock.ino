@@ -84,7 +84,7 @@ uint32_t main_colour = pixels.Color(255,255,255);
 /*=====================*/
 
 void setup() {
-  attachInterrupt(0, setISR, RISING);
+  /* attachInterrupt(0, setISR, RISING);*/
 
   Serial.begin(9600);
   while (!Serial) ; // wait for serial
@@ -171,8 +171,8 @@ void loop() {
 /*===============================*/
 
 void processHTTP() {
-  uint8_t h1,h2,m1,m2;
-  uint16_t temp, colour;
+  uint8_t h1,h2,m1,m2, setting;
+  uint16_t temp, colour, red, green, blue;
   byte bTemp[4] = {B0000};
   tmElements_t tm; // time struct holder
 
@@ -189,7 +189,7 @@ void processHTTP() {
     closeCommand+="\r\n";
           
     if (esp.find("set=")) {
-      int setting = esp.read() - 0x30;
+      setting = esp.read() - 0x30;
       if (setting < 4) {
         if (esp.find("hour=")) {
           h1 = (esp.read() - 0x30) * 10;
@@ -205,10 +205,14 @@ void processHTTP() {
         tm.Second = 0;
     
       } else if (setting == 4) {
-        if (esp.find("c=")) {
-          int red = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
-          int green = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
-          int blue = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
+        if (esp.find("r=")) {
+          red = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
+        if (esp.find("g=")) {
+          green = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
+        }
+        if (esp.find("b=")) {
+          blue = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
+        }
           main_colour = pixels.Color(red,green,blue);
         }
       }
@@ -221,6 +225,10 @@ void processHTTP() {
           setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), pixels.Color(0,255,0), pixels.Color(255,255,255));
           delay(1000);
           Serial.println("Time set!");
+          Serial.print(h1);
+          Serial.print(h2);
+          Serial.print(m1);
+          Serial.println(m2);
           break;
         case 2:
           sendData(closeCommand,1000,DEBUG); // close connection
@@ -242,6 +250,7 @@ void processHTTP() {
           delay(10000);
           break;
         case 4:
+          sendData(closeCommand,1000,DEBUG); // close connection
           break;
         default:
           sendData(closeCommand,1000,DEBUG); // close connection
@@ -250,9 +259,9 @@ void processHTTP() {
           Serial.println("Invalid setting!");
       }
     } else {
+      sendData(closeCommand,1000,DEBUG); // close connection
       solidColor(255,0,0);
       delay(200);
-      sendData(closeCommand,1000,DEBUG); // close connection
     }
     
   }
