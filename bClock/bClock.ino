@@ -241,17 +241,6 @@ void loop() {
     setBClock(tm, bTime, sizeof(bTime));
   }
 
-  if (RTC.alarm(ALARM_2) ) {
-    Serial.println("Alarm!");
-    while (i < 30) {
-      setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,140,0), pixels.Color(255,255,255));
-      delay(500);
-      solidColor(0,0,0);
-      delay(500);
-      i++;
-    }
-  }
-
   // debug
   /* Serial.println("Hour Digit 1:");*/
   /* Serial.println(bTime[0],BIN);*/
@@ -281,6 +270,17 @@ void loop() {
   // wait a second before checking the time again
   /* delay(1000);*/
 
+  // check if alarm flag after setting time
+  if (RTC.alarm(ALARM_2) ) {
+    Serial.println("Alarm!");
+    while (i < 30) {
+      setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,140,0), pixels.Color(255,255,255));
+      delay(500);
+      solidColor(0,0,0);
+      delay(500);
+      i++;
+    }
+  }
 }
 
  /* ---- CLOCK FUNCTIONS ----*/
