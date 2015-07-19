@@ -1,0 +1,96 @@
+<html>
+  <head>
+    <title>Wooden Bits Controller</title>
+  </head>
+  <body>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" media="screen" type="text/css" href="css/colorpicker.css" />
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
+  <script src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/colorpicker.js"></script>
+  <link rel="stylesheet" href="style.css">
+
+  <div class='container'>
+    <div class='row'>
+      <div class='col-lg-8 col-lg-offset-2 text-center bg-gray'>
+        <h1>Wooden Bits Controller</h1>
+      </div>
+    </div>
+    <div class='row'>
+      <div class='col-lg-8 col-lg-offset-2 text-center bg-gray'>
+        <button id="1" class="btn btn-primary btn-lg">Set to Current Time</button> <!-- button for pin 11 -->
+      </div>
+    </div>
+    <div class='row'>
+    <div class='col-lg-8 col-lg-offset-2 text-center bg-gray'>
+    <form class='form-inline'>
+      <div class='form-group'>
+        <label for="hour">Hour</label>
+      <input id="hour" class="form-control"></input> <!-- button for pin 12 -->
+    </div>
+      <div class='form-group'>
+        <label for="min">Minute</label>
+      <input id="min" class="form-control"></input> <!-- button for pin 12 -->
+    </div>
+      <button id="2" class="btn btn-primary btn-lg">Set Alarm</button> <!-- button for pin 12 -->
+    </form>
+    </div>
+    </div>
+    <div class='row'>
+    <div class='col-lg-8 col-lg-offset-2 text-center bg-gray'>
+      <button id="3" class="btn btn-primary btn-lg">View Temperature</button> <!-- button for pin 13 -->
+    </div>
+    </div>
+    <div class='row'>
+    <div class='col-lg-8 col-lg-offset-2 text-center bg-gray'>
+                <p class='center-align' id="colorpickerHolder">
+                </p>
+      <!-- <button id="3" class="btn-primary btn-lg colorpicker_btn">Submit Colour</button> [> button for pin 13 <]-->
+    </div>
+              </div>
+    <div class='row'>
+      <div class='col-lg-8 col-lg-offset-2 text-center bg-gray'>
+        <img src='images/logo.png'/>
+      </div>
+    </div>
+            </div>
+  </div>
+
+  <script type="text/javascript">
+function pad (str, max) {
+  str = str.toString();
+  return str.length < max ? pad("0" + str, max) : str;
+}
+    $(document).ready(function(){
+        $('#colorpickerHolder').ColorPicker({flat: true, onSubmit: function(hsb, hex, rgb, el) {
+          console.log(rgb);
+          rgb.r = pad(rgb.r,3);
+          rgb.g = pad(rgb.g,3);
+          rgb.b = pad(rgb.b,3);
+        $.get("http://192.168.4.1:80/", {set:4, r:rgb.r, g:rgb.g, b:rgb.b}); // execute get request
+          }
+          });
+      var now = new Date();
+      var hour = now.getHours();
+      var min = now.getMinutes();
+      $("#hour").val(hour);
+      $("#min").val(min);
+      $(".btn").click(function(){
+        var p = $(this).attr('id'); // get id value (i.e. pin13, pin12, or pin11)
+        now = new Date();
+        hour = now.getHours();
+        min = now.getMinutes();
+        if (p == '2') {
+          hour = $("#hour").val();
+          min = $("#min").val();
+        }
+        hour = pad(hour,2);
+        min = pad(min,2);
+        // send HTTP GET request to the IP address with the parameter "pin" and value "p", then execute the function
+        $.get("http://192.168.4.1:80/", {set:p, hour:hour, min:min}); // execute get request
+      });
+    });
+  </script>
+  </body>
+</html>
