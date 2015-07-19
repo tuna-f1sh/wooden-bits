@@ -48,7 +48,7 @@ ______ _                          _____ _            _
  /* ---- CONFIGURE ---- */
 /*==========================*/
 
-#define DEBUG true
+#define DEBUG false
 // delay for startup wipe
 #define WIPE_DELAY     5
 // delay for quarter hour display
@@ -74,8 +74,8 @@ uint8_t flag = false;
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-// esp on software serial
-SoftwareSerial esp(4,5); // RX (esp TX) 4, TX (esp RX) 5
+// debug on software serial
+SoftwareSerial RSdebug(4,5); // RX (esp TX) 4, TX (esp RX) 5
 
 // main colour display colour
 uint32_t main_colour = pixels.Color(255,255,255);
@@ -85,9 +85,9 @@ uint32_t main_colour = pixels.Color(255,255,255);
 
 void setup() {
   /* attachInterrupt(0, setISR, RISING);*/
+  pinMode(4, OUTPUT);
 
-  Serial.begin(9600);
-  while (!Serial) ; // wait for serial
+  RSdebug.begin(9600);
 
   // This initializes the NeoPixel library.
   pixels.begin(); 
@@ -98,9 +98,12 @@ void setup() {
   pixels.setBrightness(brightness);
 
   // esp init for recieving HTTP requests via AP
-  esp.begin(9600);
+  Serial.begin(9600);
   rainbow(5);
-  sendData("AT+RST\r\n",2000,DEBUG); // reset module
+  digitalWrite(4, LOW);
+  delay(100);
+  digitalWrite(4, HIGH);
+  delay(500);
   sendData("AT+CWMODE=2\r\n",1000,DEBUG); // configure as access point
   sendData("AT+CIFSR\r\n",1000,DEBUG); // get ip address
   sendData("AT+CIPMUX=1\r\n",1000,DEBUG); // configure for multiple connections
@@ -116,17 +119,7 @@ void loop() {
   // [hour/10, hour/1, minute/10, minute/1]
   byte bTime[4] = {B0000};
 
-  // get the time from RTC
-  if (RTC.read(tm) == RTC_RETURN) {
-  } else {
-    // rtc isn't reading
-    Serial.println("RTC read error!  Please check the circuitry.");
-    Serial.println();
-    solidColor(255,0,0); // all red
-    // error loop: wait 9s then try again
-    delay(9000);
-    return;
-  }
+  RTC.read(tm);
 
   // convert the time to nybles for the matrix
   pixelTime(tm, bTime);
@@ -135,19 +128,9 @@ void loop() {
     setBClock(tm, bTime, sizeof(bTime));
   }
 
-  if(esp.available()) {
+  if(Serial.available()) {
     processHTTP();
   }
-
-  // debug
-  /* Serial.println("Hour Digit 1:");*/
-  /* Serial.println(bTime[0],BIN);*/
-  /* Serial.println("Hour Digit 2:");*/
-  /* Serial.println(bTime[1],BIN);*/
-  /* Serial.println("Minute Digit 1:");*/
-  /* Serial.println(bTime[2],BIN);*/
-  /* Serial.println("Minute Digit 2:");*/
-  /* Serial.println(bTime[3],BIN);*/
 
   // quarter hour indicator
   if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
@@ -177,10 +160,10 @@ void processHTTP() {
   tmElements_t tm; // time struct holder
 
   // TCP data recieved
-  if(esp.find("+IPD,")) {
+  if(Serial.find("+IPD,")) {
     delay(1000); // wait for the serial buffer to fill up (read all the serial data)
     // get the connection id so that we can then disconnect
-    int connectionId = esp.read() - 0x30; // subtract 48 because the read() function returns 
+    int connectionId = Serial.read() - 0x30; // subtract 48 because the read() function returns 
                                            // the ASCII decimal value and 0 (the first decimal number) starts at 48
 
     // make close command
@@ -188,15 +171,15 @@ void processHTTP() {
     closeCommand+=connectionId; // append connection id
     closeCommand+="\r\n";
           
-    if (esp.find("set=")) {
-      setting = esp.read() - 0x30;
+    if (Serial.find("set=")) {
+      setting = Serial.read() - 0x30;
       if (setting < 4) {
-        if (esp.find("hour=")) {
-          h1 = (esp.read() - 0x30) * 10;
-          h2 = (esp.read() - 0x30);
-          if (esp.find("min=")) { 
-            m1 = (esp.read() - 0x30) * 10;
-            m2 = (esp.read() - 0x30);
+        if (Serial.find("hour=")) {
+          h1 = (Serial.read() - 0x30) * 10;
+          h2 = (Serial.read() - 0x30);
+          if (Serial.find("min=")) { 
+            m1 = (Serial.read() - 0x30) * 10;
+            m2 = (Serial.read() - 0x30);
           } else { setting = 10; h1 = 0; h2 = 0; m1 = 0; m2 = 0; }
         } else { setting = 10; h1 = 0; h2 = 0; m1 = 0; m2 = 0; }
 
@@ -205,13 +188,13 @@ void processHTTP() {
         tm.Second = 0;
     
       } else if (setting == 4) {
-        if (esp.find("r=")) {
-          red = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
-        if (esp.find("g=")) {
-          green = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
+        if (Serial.find("r=")) {
+          red = ((Serial.read() - 0x30) * 100) + ((Serial.read() - 0x30) * 10) + (Serial.read() - 0x30);
+        if (Serial.find("g=")) {
+          green = ((Serial.read() - 0x30) * 100) + ((Serial.read() - 0x30) * 10) + (Serial.read() - 0x30);
         }
-        if (esp.find("b=")) {
-          blue = ((esp.read() - 0x30) * 100) + ((esp.read() - 0x30) * 10) + (esp.read() - 0x30);
+        if (Serial.find("b=")) {
+          blue = ((Serial.read() - 0x30) * 100) + ((Serial.read() - 0x30) * 10) + (Serial.read() - 0x30);
         }
           main_colour = pixels.Color(red,green,blue);
         }
@@ -224,11 +207,11 @@ void processHTTP() {
           pixelTime(tm, bTemp);
           setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), pixels.Color(0,255,0), pixels.Color(255,255,255));
           delay(1000);
-          Serial.println("Time set!");
-          Serial.print(h1);
-          Serial.print(h2);
-          Serial.print(m1);
-          Serial.println(m2);
+          RSdebug.println("Time set!");
+          RSdebug.print(h1);
+          RSdebug.print(h2);
+          RSdebug.print(m1);
+          RSdebug.println(m2);
           break;
         case 2:
           sendData(closeCommand,1000,DEBUG); // close connection
@@ -236,12 +219,12 @@ void processHTTP() {
           pixelTime(tm, bTemp);
           setMatrix(bTemp, sizeof(bTemp)/sizeof(bTemp[1]), pixels.Color(255,140,0), pixels.Color(255,255,255));
           delay(1000);
-          Serial.println("Alarm set!");
+          RSdebug.println("Alarm set!");
           break; 
         case 3:
           sendData(closeCommand,1000,DEBUG); // close connection
           temp = (RTC.temperature() / 4);
-          Serial.print(temp);Serial.println("degC");
+          RSdebug.print(temp);RSdebug.println("degC");
           tm.Minute = temp;
           tm.Hour = 0;
           colour = map(temp, 0, 30, 85, 0);
@@ -256,7 +239,7 @@ void processHTTP() {
           sendData(closeCommand,1000,DEBUG); // close connection
           solidColor(255,255,0);
           delay(500);
-          Serial.println("Invalid setting!");
+          RSdebug.println("Invalid setting!");
       }
     } else {
       sendData(closeCommand,1000,DEBUG); // close connection
@@ -270,7 +253,7 @@ void processHTTP() {
 String sendData(String command, const uint32_t timeout, uint8_t debug) {
   String response = "";
   
-  esp.print(command); // send the read character to the esp
+  Serial.print(command); // send the read character to the esp
   
   response = recieveData(timeout, debug);
 
@@ -282,15 +265,15 @@ String recieveData(const uint32_t timeout, uint8_t debug) {
   long int time = millis();
     
   while( (time+timeout) > millis()) {
-    while(esp.available()) {
+    while(Serial.available()) {
       // The esp has data so display its output to the serial window 
-      char c = esp.read(); // read the next character.
+      char c = Serial.read(); // read the next character.
       response+=c;
     }  
   }
 
   if(debug) {
-    Serial.print(response);
+    RSdebug.print(response);
   }
   
   return response;
