@@ -103,11 +103,16 @@ void setup() {
   digitalWrite(4, LOW);
   delay(100);
   digitalWrite(4, HIGH);
-  delay(500);
+  delay(1000);
+  solidColor(0,0,0);
   sendData("AT+CWMODE=2\r\n",1000,DEBUG); // configure as access point
+  solidColor(0,255,0);
   sendData("AT+CIFSR\r\n",1000,DEBUG); // get ip address
+  solidColor(0,0,0);
   sendData("AT+CIPMUX=1\r\n",1000,DEBUG); // configure for multiple connections
+  solidColor(0,255,0);
   sendData("AT+CIPSERVER=1,80\r\n",1000,DEBUG); // turn on server on port 80
+  solidColor(0,0,0);
 }
 
 /* ---- LOOP ---- */
@@ -119,7 +124,18 @@ void loop() {
   // [hour/10, hour/1, minute/10, minute/1]
   byte bTime[4] = {B0000};
 
+  // get the time from RTC
   RTC.read(tm);
+  /* if (RTC.read(tm) == RTC_RETURN) {*/
+  /* } else {*/
+  /*   // rtc isn't reading*/
+  /*   Serial.println("RTC read error!  Please check the circuitry.");*/
+  /*   Serial.println();*/
+  /*   solidColor(255,0,0); // all red*/
+  /*   // error loop: wait 9s then try again*/
+  /*   delay(9000);*/
+  /*   return;*/
+  /* }*/
 
   // convert the time to nybles for the matrix
   pixelTime(tm, bTime);
