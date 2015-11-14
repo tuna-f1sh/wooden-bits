@@ -17,6 +17,10 @@ hLights = 4; // number of horizontal lights (rows)
 vLights = 4; // number of vertical lights (columns)
 lightHeight = 50; // height of each light box
 lightWidth = 50; // width of each light box
+screw_r = 2;
+screw_cap = 3.6;
+power_r = 4;
+button_r = 2;
 
 // --- kerf bend ----
 slotLength = 15;
@@ -41,6 +45,7 @@ sepLight = lengthSection/hLights;
 split = 1; // divide complete strip by this number
 spacing = 2; // spacing between cut outs
 middle = 0; // whether to make cable holes on top and bottom for middle sections
+$fn=100;
 
 // overall length of sheet
 /* lengthSheet = (vLights*parameterCurve)+((vLights+1)*(lengthSection+materialThickness))+LaserBeamDiameter; // uncomment for one-piece*/
@@ -57,9 +62,11 @@ echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 
 // comment uncomment for different dxf exports to cut wood sections of acrylic diffusers
 /* fullPrint();*/
-acrylic();
+/* acrylic();*/
 /* wood();*/
-/* fullWood();*/
+fullWood();
+/* screwPlate();*/
+/* lightDivider(2);*/
 
 // --- END EXPORT ---
 
@@ -93,6 +100,8 @@ difference() {
         /* translate([-materialThickness/2,0]) square([(lengthSection/2+materialThickness/2), depth]);*/
         /* translate([-materialThickness/2+lengthSection*1.5+parameterCurve+materialThickness*1.5,0]) square([(lengthSection/2+materialThickness/2+LaserBeamDiameter), depth]);*/
       }
+    } else if (middle == 2) { // cable holes near curve only
+        translate([sepLight/2+((lengthSection+parameterCurve+materialThickness)*1),depth-10]) circle(2,center=true);
     } else { // cable holes near curve only
         translate([lengthSection-sepLight/2,depth-10]) circle(2,center=true);
     }
@@ -165,19 +174,33 @@ translate([materialThickness,0]) {
     if (x < hLights) {
       translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(1);
     } else {
-      translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(0);
+      if (mid == 0) {
+        translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(2);
+      } else {
+        translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(0);
+      }
     }
   };
 };
 /* translate([materialThickness+lengthSection+parameterCurve,-220]) {*/
-  translate([(hLights+1)*(lightHeight+materialThickness*2+spacing*2),depth*1+spacing*1+materialThickness]) backingPlate();
+  if (mid == 0) {
+    translate([(hLights+1)*(lightHeight+materialThickness*2+spacing*2),depth*1+spacing*1+materialThickness]) backingPlate(1);
+  } else {
+  translate([(hLights+1)*(lightHeight+materialThickness*2+spacing*2),depth*1+spacing*1+materialThickness]) backingPlate(0);
+  }
 /* };*/
+}
+
+module screwPlate() {
+  backingPlate(1);
 }
 
 module fullWood() {
   for (x = [0:3]) {
-    if (x <= 2) {
+    if (x <= 1) {
       translate([0,(depth*2+spacing*3+materialThickness*2)*x]) wood(1);
+    } else if (x == 2) {
+      translate([0,(depth*2+spacing*3+materialThickness*2)*x]) wood(2);
     } else {
       translate([0,(depth*2+spacing*3+materialThickness*2)*x]) wood(0);
     }
@@ -227,8 +250,11 @@ module lightDivider(cable_run)
   union() {
     difference() {
       square([hdiv,wdiv-materialThickness]); // take material thickness off back for single backing piece
-      if (cable_run) {
+      if (cable_run == 1) { // mid-pieces have run for able
         translate([hdiv/2,wdiv-materialThickness]) circle(4); // cut a half circle for cable run
+      } else if (cable_run == 2) { // one end piece has power connector
+        translate([10+power_r, wdiv-10-power_r]) circle(r=power_r,center=true);
+        translate([hdiv-15, wdiv-10-power_r]) circle(r=button_r,center=true);
       }
     }
     translate([-materialThickness/2,wdiv/2+wdiv/4]) square([materialThickness+LaserBeamDiameter,slotDividerLength+LaserBeamDiameter],center=true);
@@ -255,20 +281,36 @@ module lightDiffuser()
   };
 }
 
-module backingPlate()
+module backingPlate(wall)
 {
   /* length = hLights*lightWidth+LaserBeamDiameter;*/
   length = lengthSection+materialThickness+LaserBeamDiameter;
   height = lightHeight+LaserBeamDiameter;
-  union() {
-    square([length,height]);
-    translate([materialThickness/2,0]) {
-      for (x = [0 : sepLight : length-lightWidth]) {
-        translate([x,0]) toothB();
-      };
-      for (x = [0 : sepLight : length-lightWidth]) {
-        translate([x,height+materialThickness]) toothB();
+  difference() {
+    union() {
+      square([length,height]);
+      translate([materialThickness/2,0]) {
+        for (x = [0 : sepLight : length-lightWidth]) {
+          translate([x,0]) toothB();
+        };
+        for (x = [0 : sepLight : length-lightWidth]) {
+          translate([x,height+materialThickness]) toothB();
+        };
       };
     };
-  };
+    if (wall) {
+      translate([sepLight/2,height/5]) {
+        screwHole();
+      }
+      translate([sepLight*3+sepLight/2,height/5]) {
+        screwHole();
+      }
+    }
+  }
+}
+
+module screwHole() {
+  circle(screw_r-LaserBeamDiameter,center=true);
+  translate([0,screw_r-LaserBeamDiameter]) square([screw_r*2-LaserBeamDiameter,screw_r*2-LaserBeamDiameter],center=true);
+  translate([0,screw_cap+screw_r-LaserBeamDiameter]) circle(screw_cap-LaserBeamDiameter,center=true);
 }

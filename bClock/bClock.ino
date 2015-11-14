@@ -35,10 +35,7 @@ ______ _                          _____ _            _
 #include <Time.h>
 #include <Adafruit_NeoPixel.h>
 #include "bClock.h"
-#ifdef CHIP_DS1307RTC
-  #include <DS1307RTC.h>
-  #define RTC_RETURN 1
-#endif
+
 #ifdef CHIP_DS3232RTC
   #include <DS3232RTC.h>
   #define RTC_RETURN 0
@@ -76,7 +73,9 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 /*=====================*/
 
 void setup() {
-  attachInterrupt(0, setISR, RISING);
+  attachInterrupt(0, setISR, FALLING);
+  // pull-up interrupt
+  pinMode(2,INPUT_PULLUP);
 
   Serial.begin(9600);
   while (!Serial) ; // wait for serial
@@ -297,7 +296,7 @@ void setBClock(tmElements_t &tm, byte *bTime, uint8_t size) {
     
     state = digitalRead(2);
 
-    if (state) {
+    if (!state) {
 
       if (millis() - hold > 1000) {
         dperiod = 40;

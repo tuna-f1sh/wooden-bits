@@ -1,6 +1,6 @@
 # BOARD_TAG    = uno
 # mini settings
-BOARD_TAG    = pro
+BOARD_TAG    = nano
 MCU = atmega328p
 F_CPU = 16000000
 AVRDUDE_ARD_BAUDRATE = 57600
