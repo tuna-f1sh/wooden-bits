@@ -101,7 +101,7 @@ difference() {
         /* translate([-materialThickness/2+lengthSection*1.5+parameterCurve+materialThickness*1.5,0]) square([(lengthSection/2+materialThickness/2+LaserBeamDiameter), depth]);*/
       }
     } else if (middle == 2) { // cable holes near curve only
-        translate([sepLight/2+((lengthSection+parameterCurve+materialThickness)*1),depth-10]) circle(2,center=true);
+        translate([sepLight/2,depth-10]) circle(2,center=true);
     } else { // cable holes near curve only
         translate([lengthSection-sepLight/2,depth-10]) circle(2,center=true);
     }
@@ -141,7 +141,7 @@ body(middle);
 translate([materialThickness,0]) {
   for (x = [0:hLights]) {
     // we don't want a cable run at the end piece
-    if (x < hLights - 1) {
+    if (x < hLights - 2) {
       translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(1);
     } else {
       translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(0);
@@ -171,10 +171,10 @@ body(mid);
 translate([materialThickness,0]) {
   for (x = [0:hLights]) {
     // we don't want a cable run at the end piece
-    if (x < hLights) {
+    if (x < hLights - 1) {
       translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(1);
     } else {
-      if (mid == 0) {
+      if ((mid == 0) && (x == 4)) {
         translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(2);
       } else {
         translate([x*(lightHeight+materialThickness*2+spacing*2),depth+spacing]) lightDivider(0);
