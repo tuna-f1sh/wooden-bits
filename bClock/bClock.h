@@ -25,8 +25,6 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait);
 void setMatrix(byte bMatrix[], size_t size, uint32_t color1, uint32_t color2);
 // fills lookup map for matrix [x][y]
 void initMatrixMap(uint16_t map[PIXEL_ROW][PIXEL_COLUMN], uint8_t rotate);
-// interrupt for set time button
-void setISR(void);
 // set time function
 void setBClock(tmElements_t &tm, byte *bTime, uint8_t size);
 // set matrix to solid colour

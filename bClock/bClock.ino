@@ -60,9 +60,12 @@ const static uint8_t pulse_second = false;
 // rotate the grid 90deg?
 const static uint8_t rotate = false;
 // brightness (0 darkest (off) - 255 retina searing)
-const static uint8_t brightness = 255;
+const static uint8_t brightness = 10;
 // set time flag from ISR
-uint8_t flag = false;
+static uint8_t flag = false;
+static uint8_t set_clock = false;
+static uint8_t set_colour = false;
+static uint32_t main_colour;
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
@@ -71,6 +74,64 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 
 /* ---- SETUP ---- */
 /*=====================*/
+
+static void setISR(void) {
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+
+  // disable interrupts until acted on
+  noInterrupts();
+
+  // debouce
+  if (interrupt_time - last_interrupt_time > 200)
+    flag = true;
+  else
+    interrupts();
+
+  last_interrupt_time = interrupt_time;
+}
+
+static void processISR(void) {
+  uint32_t hold = millis();
+
+  while (!digitalRead(2) && !set_colour) {
+    if (millis() - hold < 5000) {
+      set_clock = true;
+    } else if (!digitalRead(2)) {
+      set_clock = false;
+      set_colour = true;
+    }
+  }
+}
+
+static void setColour(void) {
+  uint32_t entry = millis(); // entry time - reset each button press
+  uint32_t debouce = 0;
+  uint8_t ci = 0;
+  
+  pixels.clear();
+
+  while(millis() - entry < 5000) {
+    if (!digitalRead(2)) {
+      if ((millis() - debouce) > 10) {
+        entry = millis();
+
+        main_colour = Wheel(ci);
+        ci = (ci++ <= 255) ? ci : 0;
+        for (uint16_t i=0;i<NUMPIXELS;i++) {
+          pixels.setPixelColor(i, main_colour);
+        }
+        pixels.show();
+
+        debouce = millis();
+      }
+    }
+  }
+
+  flag = false;
+  set_colour = false;
+  interrupts();
+}
 
 void setup() {
   attachInterrupt(0, setISR, FALLING);
@@ -85,6 +146,7 @@ void setup() {
   initMatrixMap(pixelMap,rotate);
 
   pixels.setBrightness(brightness);
+  main_colour = pixels.Color(255,255,255);
 
   // wipe through rgb for LED debug
   colorWipe(pixels.Color(255,0,0),WIPE_DELAY);
@@ -118,19 +180,14 @@ void loop() {
   pixelTime(tm, bTime);
 
   if (flag) {
-    setBClock(tm, bTime, sizeof(bTime));
+    processISR();
+    if (set_clock) {
+      setBClock(tm, bTime, sizeof(bTime));
+    } else if (set_colour) {
+      setColour();
+    }
   }
-
-  // debug
-  /* Serial.println("Hour Digit 1:");*/
-  /* Serial.println(bTime[0],BIN);*/
-  /* Serial.println("Hour Digit 2:");*/
-  /* Serial.println(bTime[1],BIN);*/
-  /* Serial.println("Minute Digit 1:");*/
-  /* Serial.println(bTime[2],BIN);*/
-  /* Serial.println("Minute Digit 2:");*/
-  /* Serial.println(bTime[3],BIN);*/
-
+  
   // quarter hour indicator
   if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
     quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
@@ -146,7 +203,7 @@ void loop() {
     delay(10);
   }
   // set the matrix to the binary time
-  setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), pixels.Color(255,255,255), pixels.Color(255,0,0));
+  setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), main_colour, pixels.Color(255,0,0));
   // wait a second before checking the time again
   delay(1000);
 
@@ -284,9 +341,6 @@ void setBClock(tmElements_t &tm, byte *bTime, uint8_t size) {
   uint8_t dperiod = 200; // debouce period
   uint8_t state; // button state
 
-  // disable interrupts to use the button
-  noInterrupts();
-
   // run for 5s then save the time to RTC
   while (millis() - entry < 5000) {
 
@@ -299,7 +353,7 @@ void setBClock(tmElements_t &tm, byte *bTime, uint8_t size) {
     if (!state) {
 
       if (millis() - hold > 1000) {
-        dperiod = 40;
+        dperiod = 20;
       } else {
         dperiod = 200;
       }
@@ -401,15 +455,4 @@ uint32_t Wheel(byte WheelPos) {
    WheelPos -= 170;
    return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
-}
-
-void setISR(void) {
-  static unsigned long last_interrupt_time = 0;
-  unsigned long interrupt_time = millis();
-
-  // debouce
-  if (interrupt_time - last_interrupt_time > 200)
-    flag = true;
-
-  last_interrupt_time = interrupt_time;
 }
