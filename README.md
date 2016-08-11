@@ -22,7 +22,7 @@ can be used as a map reference for other functions.
 
 ## Features
 
-* Version for Arduino/Attiny328 and Raspberry Pi.
+* Version for Arduino/Atmega328 and Raspberry Pi.
 * Scales to any size WS2812 matrix.
 * Ability to rotate display.
 * Ability to set second indicator pulsing.
@@ -38,10 +38,10 @@ For more details, see my blog post: http://wp.me/p2C0Bi-7R
 
 ### Hardware
 
-* Arduino/attiny328 or Raspberry Pi.
+* Arduino/atmega328 or Raspberry Pi.
 * Pixel grid, user created or Adafruit NeoPixel, Pimoroni Unicorn Hat. Should
   be connected to pin 6 on Arduino or pin 18 on rPi by default.
-* For Arduino you'll need a DS1307RTC chip, already set with the time (see
+* For Arduino you'll need a DS1307RTC/DS3231RTC chip, already set with the time (see
   library page).
 
 ### Arduino Libraries  
