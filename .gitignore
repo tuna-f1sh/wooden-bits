@@ -42,3 +42,7 @@ tags
 *~
 *.swp
 *DS_Store
+*.pdsbak
+*.workspace
+*.zip
+*CADCAM
