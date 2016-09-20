@@ -64,9 +64,9 @@ echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 /* fullPrint();*/
 /* acrylic();*/
 /* wood();*/
-fullWood();
+/* fullWood();*/
 /* screwPlate();*/
-/* lightDivider(2);*/
+lightDivider(2);
 
 // --- END EXPORT ---
 
@@ -253,8 +253,14 @@ module lightDivider(cable_run)
       if (cable_run == 1) { // mid-pieces have run for able
         translate([hdiv/2,wdiv-materialThickness]) circle(4); // cut a half circle for cable run
       } else if (cable_run == 2) { // one end piece has power connector
-        translate([10+power_r, wdiv-10-power_r]) circle(r=power_r,center=true);
-        translate([hdiv-15, wdiv-10-power_r]) circle(r=button_r,center=true);
+        translate([9.5, wdiv-materialThickness-12]) {
+          circle(r=power_r-LaserBeamDiameter/2,center=true);
+          translate([0,-15+4.5]) text("12V",size=4,halign="center",valign="center");
+        }
+        translate([hdiv-9.5, wdiv-materialThickness-7]) { 
+          circle(r=button_r-LaserBeamDiameter/2,center=true);
+          translate([0,-15]) text("SET",size=4,halign="center",valign="center");
+        }
       }
     }
     translate([-materialThickness/2,wdiv/2+wdiv/4]) square([materialThickness+LaserBeamDiameter,slotDividerLength+LaserBeamDiameter],center=true);
