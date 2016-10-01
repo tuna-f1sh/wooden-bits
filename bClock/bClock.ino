@@ -32,12 +32,15 @@ ______ _                          _____ _            _
 */
 
 #include <Wire.h>
-#include <Time.h>
+#include <TimeLib.h>
 #include <Adafruit_NeoPixel.h>
 #include "bClock.h"
 
 #ifdef CHIP_DS3232RTC
   #include <DS3232RTC.h>
+  #define RTC_RETURN 0
+#elif defined CHIP_DS1307RTC
+  #include <DS1307RTC.h>
   #define RTC_RETURN 0
 #endif
 
@@ -60,7 +63,7 @@ const static uint8_t pulse_second = false;
 // rotate the grid 90deg?
 const static uint8_t rotate = false;
 // brightness (0 darkest (off) - 255 retina searing)
-const static uint8_t brightness = 10;
+const static uint8_t brightness = 255;
 // set time flag from ISR
 static uint8_t flag = false;
 static uint8_t set_clock = false;
@@ -159,26 +162,13 @@ void setup() {
 /*====================*/
 
 void loop() {
-  tmElements_t tm; // time struct holder
+  static tmElements_t tm; // time struct holder
+  uint16_t setDelay = 0;
   // nyble vector for matrix columns
   // [hour/10, hour/1, minute/10, minute/1]
   byte bTime[4] = {B0000};
 
-  // get the time from RTC
-  if (RTC.read(tm) == RTC_RETURN) {
-  } else {
-    // rtc isn't reading
-    Serial.println("RTC read error!  Please check the circuitry.");
-    Serial.println();
-    solidColor(255,0,0); // all red
-    // error loop: wait 9s then try again
-    delay(9000);
-    return;
-  }
-
-  // convert the time to nybles for the matrix
-  pixelTime(tm, bTime);
-
+  // Process interrupt button call
   if (flag) {
     processISR();
     if (set_clock) {
@@ -188,25 +178,43 @@ void loop() {
     }
   }
   
-  // quarter hour indicator
-  if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
-    quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
-  }
-  // turn them all off for second indicator flash
-  if (pulse_second) {
-    for (uint8_t x = 0; x < PIXEL_ROW; x += width) {
-      for (uint8_t y  = 0; y < PIXEL_COLUMN; y += height) {
-        setPixel(pixelMap[x][y], 1, pixels.Color(0,0,0));
-      }
-    }
-    pixels.show();
-    delay(10);
-  }
-  // set the matrix to the binary time
-  setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), main_colour, pixels.Color(255,0,0));
-  // wait a second before checking the time again
-  delay(1000);
+  // Set clock every 1s
+  if (setDelay - millis() >= 1000) {
+    // wait a second before checking the time again
+    setDelay = millis();
 
+    // get the time from RTC
+    if (RTC.read(tm) == RTC_RETURN) {
+    } else {
+      // rtc isn't reading
+      Serial.println("RTC read error!  Please check the circuitry.");
+      Serial.println();
+      solidColor(255,0,0); // all red
+      // error loop: wait 9s then try again
+      delay(9000);
+      return;
+    }
+
+    // convert the time to nybles for the matrix
+    pixelTime(tm, bTime);
+
+    // quarter hour indicator
+    if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
+      quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
+    }
+    // turn them all off for second indicator flash
+    if (pulse_second) {
+      for (uint8_t x = 0; x < PIXEL_ROW; x += width) {
+        for (uint8_t y  = 0; y < PIXEL_COLUMN; y += height) {
+          setPixel(pixelMap[x][y], 1, pixels.Color(0,0,0));
+        }
+      }
+      pixels.show();
+      delay(10);
+    }
+    // set the matrix to the binary time
+    setMatrix(bTime, sizeof(bTime)/sizeof(bTime[1]), main_colour, pixels.Color(255,0,0));
+  }
 }
 
  /* ---- CLOCK FUNCTIONS ----*/
