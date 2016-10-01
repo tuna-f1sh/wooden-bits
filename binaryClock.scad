@@ -20,7 +20,7 @@ lightWidth = 50; // width of each light box
 screw_r = 2;
 screw_cap = 3.6;
 power_r = 4;
-button_r = 2;
+button_r = 2.5;
 
 // --- kerf bend ----
 slotLength = 15;
@@ -62,11 +62,11 @@ echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 
 // comment uncomment for different dxf exports to cut wood sections of acrylic diffusers
 /* fullPrint();*/
-/* acrylic();*/
+acrylic();
 /* wood();*/
 /* fullWood();*/
 /* screwPlate();*/
-lightDivider(2);
+/* lightDivider(2);*/
 
 // --- END EXPORT ---
 
@@ -157,8 +157,8 @@ translate([materialThickness,0]) {
 };
 
 module acrylic() {
-  hAcrylic = 297;
-  wAcrylic = 210;
+  hAcrylic = 500;
+  wAcrylic = 800;
   for (y = [0:lightHeight+LaserBeamDiameter+materialThickness*2+spacing:wAcrylic-lightHeight]) {
     for (x = [0:lightWidth+LaserBeamDiameter+spacing:hAcrylic-lightWidth]) {
       translate([x,y]) lightDiffuser();
@@ -255,11 +255,11 @@ module lightDivider(cable_run)
       } else if (cable_run == 2) { // one end piece has power connector
         translate([9.5, wdiv-materialThickness-12]) {
           circle(r=power_r-LaserBeamDiameter/2,center=true);
-          translate([0,-15+4.5]) text("12V",size=4,halign="center",valign="center");
+          translate([0,-15+4.5]) text("5V",size=4,halign="center",valign="center");
         }
-        translate([hdiv-9.5, wdiv-materialThickness-7]) { 
+        translate([hdiv-10.5, wdiv-materialThickness-9.5]) { 
           circle(r=button_r-LaserBeamDiameter/2,center=true);
-          translate([0,-15]) text("SET",size=4,halign="center",valign="center");
+          translate([0,-15+2.5]) text("SET",size=4,halign="center",valign="center");
         }
       }
     }
