@@ -43,7 +43,7 @@ sepLight = lengthSection/hLights;
 
 // --- EXPORT SETTIGS --- 
 split = 1; // divide complete strip by this number
-spacing = 2; // spacing between cut outs
+spacing = 1; // spacing between cut outs
 middle = 0; // whether to make cable holes on top and bottom for middle sections
 $fn=100;
 
@@ -62,9 +62,9 @@ echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 
 // comment uncomment for different dxf exports to cut wood sections of acrylic diffusers
 /* fullPrint();*/
-acrylic();
+/* acrylic();*/
 /* wood();*/
-/* fullWood();*/
+fullWood();
 /* screwPlate();*/
 /* lightDivider(2);*/
 
@@ -94,16 +94,16 @@ difference() {
     };
     if (middle == 1) {
       for (x = [0:3]) { // cable holes at both ends
-        translate([sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(2,center=true);
-        translate([lengthSection-sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(2,center=true);
+        translate([sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(4,center=true);
+        translate([lengthSection-sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(4,center=true);
         // cut ends off middle sections
         /* translate([-materialThickness/2,0]) square([(lengthSection/2+materialThickness/2), depth]);*/
         /* translate([-materialThickness/2+lengthSection*1.5+parameterCurve+materialThickness*1.5,0]) square([(lengthSection/2+materialThickness/2+LaserBeamDiameter), depth]);*/
       }
     } else if (middle == 2) { // cable holes near curve only
-        translate([sepLight/2,depth-10]) circle(2,center=true);
+        translate([sepLight/2,depth-10]) circle(4,center=true);
     } else { // cable holes near curve only
-        translate([lengthSection-sepLight/2,depth-10]) circle(2,center=true);
+        translate([lengthSection-sepLight/2,depth-10]) circle(4,center=true);
     }
   }
   // add a slot at the end for end blanking
