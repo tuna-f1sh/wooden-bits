@@ -21,6 +21,7 @@ screw_r = 2;
 screw_cap = 3.6;
 power_r = 4;
 button_r = 2.5;
+wire_r = 5;
 
 // --- kerf bend ----
 slotLength = 15;
@@ -94,16 +95,16 @@ difference() {
     };
     if (middle == 1) {
       for (x = [0:3]) { // cable holes at both ends
-        translate([sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(4,center=true);
-        translate([lengthSection-sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(4,center=true);
+        translate([sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(wire_r,center=true);
+        translate([lengthSection-sepLight/2+((lengthSection+parameterCurve+materialThickness)*x),depth-10]) circle(wire_r,center=true);
         // cut ends off middle sections
         /* translate([-materialThickness/2,0]) square([(lengthSection/2+materialThickness/2), depth]);*/
         /* translate([-materialThickness/2+lengthSection*1.5+parameterCurve+materialThickness*1.5,0]) square([(lengthSection/2+materialThickness/2+LaserBeamDiameter), depth]);*/
       }
     } else if (middle == 2) { // cable holes near curve only
-        translate([sepLight/2,depth-10]) circle(4,center=true);
+        translate([sepLight/2,depth-10]) circle(wire_r,center=true);
     } else { // cable holes near curve only
-        translate([lengthSection-sepLight/2,depth-10]) circle(4,center=true);
+        translate([lengthSection-sepLight/2,depth-10]) circle(wire_r,center=true);
     }
   }
   // add a slot at the end for end blanking
