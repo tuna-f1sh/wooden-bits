@@ -1,3 +1,5 @@
+pcb/proteus/*.jpg
+
 # Build folder
 bClock/build*
 raspberryPi/bClock
