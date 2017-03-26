@@ -163,7 +163,7 @@ void setup() {
 
 void loop() {
   static tmElements_t tm; // time struct holder
-  uint16_t setDelay = 0;
+  static uint16_t setDelay = 0;
   // nyble vector for matrix columns
   // [hour/10, hour/1, minute/10, minute/1]
   byte bTime[4] = {B0000};
@@ -179,7 +179,7 @@ void loop() {
   }
   
   // Set clock every 1s
-  if (setDelay - millis() >= 1000) {
+  if ((millis() - setDelay) >= 1000) {
     // wait a second before checking the time again
     setDelay = millis();
 
