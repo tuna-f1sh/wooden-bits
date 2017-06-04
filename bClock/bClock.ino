@@ -50,7 +50,7 @@ ______ _                          _____ _            _
 // delay for startup wipe
 #define WIPE_DELAY     50
 // delay for quarter hour display
-#define QUARTER_WAIT   10000
+#define QUARTER_WAIT   15000
 // number of pixels (row and column are defined in header)
 #define NUMPIXELS PIXEL_ROW*PIXEL_COLUMN
 // Width and height of square to show bit
@@ -259,11 +259,13 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   solidColor(0,0,0); // turn them all off
   pixels.show();
 
-  /* quarter_colour = Wheel(map(hour,0,24,0,255));*/
-
   if ((hour == 12 || hour == 0 ) && minute == 0) {
     rainbowCycle(46); // special edition hour for midday (46 will cycle for almost 1 min 1280*46)
   } else { // fade columns in and out
+
+    hour = ((minute == 0) && (hour > 0)) ? (hour - 1) : hour; // full display should be colour of previous hour
+    quarter_colour = Wheel(map(hour,0,23,0,255));
+
     for (j = 0; j <= 255; j += 5) {
       for (y = 0; y < no_rows; y++) {
         for (x = 0; x < PIXEL_ROW; x++) {
