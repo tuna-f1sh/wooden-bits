@@ -21,7 +21,7 @@ screw_r = 2;
 screw_cap = 3.6;
 power_r = 4;
 button_r = 2.5;
-wire_r = 5;
+wire_r = 6;
 
 // --- kerf bend ----
 slotLength = 15;
@@ -254,13 +254,14 @@ module lightDivider(cable_run)
       if (cable_run == 1) { // mid-pieces have run for able
         translate([hdiv/2,wdiv-materialThickness]) circle(4); // cut a half circle for cable run
       } else if (cable_run == 2) { // one end piece has power connector
-        translate([9.5, wdiv-materialThickness-12]) {
-          circle(r=power_r-LaserBeamDiameter/2,center=true);
-          translate([0,-15+4.5]) text("5V",size=4,halign="center",valign="center");
+        translate([13.5-(11/2), wdiv-materialThickness-5-(8/2)]) {
+          /* circle(r=power_r-LaserBeamDiameter/2,center=true);*/
+          rounded_square([11,12],2);
+          /* translate([0,-15+4.5]) text("5V",size=4,halign="center",valign="center");*/
         }
-        translate([hdiv-10.5, wdiv-materialThickness-9.5]) { 
+        translate([hdiv-12.5, wdiv-materialThickness-6]) { 
           circle(r=button_r-LaserBeamDiameter/2,center=true);
-          translate([0,-15+2.5]) text("SET",size=4,halign="center",valign="center");
+          /* translate([0,-15+2.5]) text("SET",size=4,halign="center",valign="center");*/
         }
       }
     }
@@ -320,4 +321,11 @@ module screwHole() {
   circle(screw_r-LaserBeamDiameter,center=true);
   translate([0,screw_r-LaserBeamDiameter]) square([screw_r*2-LaserBeamDiameter,screw_r*2-LaserBeamDiameter],center=true);
   translate([0,screw_cap+screw_r-LaserBeamDiameter]) circle(screw_cap-LaserBeamDiameter,center=true);
+}
+
+module rounded_square(d,r) {
+    minkowski() {
+        translate([r,r]) square([d[0]-2*r, d[1]-2*r]);
+        circle(r);
+    }
 }

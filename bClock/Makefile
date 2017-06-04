@@ -8,6 +8,9 @@ BOARDS_TXT = wbboards.txt
 ARDUINO_LIBS = Time DS3232RTC Wire Adafruit_NeoPixel
 AVRDUDE_OPTS = -V
 
+CXXFLAGS_STD = -std=gnu++11 -fno-threadsafe-statics
+
 # ARDUINO_QUIET = 1
 
-include ${ARDMK_DIR}/Arduino.mk
+# include ${ARDMK_DIR}/Arduino.mk
+include ~/Projects/General/Arduino-Makefile/Arduino.mk

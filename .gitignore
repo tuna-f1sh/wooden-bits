@@ -3,6 +3,8 @@ pcb/proteus/*.jpg
 # Build folder
 bClock/build*
 raspberryPi/bClock
+laser/
+*CADCAM*
 
 # Exports
 *.dxf

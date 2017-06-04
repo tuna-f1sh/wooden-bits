@@ -68,12 +68,14 @@ const static uint8_t brightness = 255;
 static uint8_t flag = false;
 static uint8_t set_clock = false;
 static uint8_t set_colour = false;
-static uint32_t main_colour;
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+static uint32_t main_colour;
+static uint32_t quarter_colour = pixels.Color(0,0,255);
 
 /* ---- SETUP ---- */
 /*=====================*/
@@ -199,7 +201,7 @@ void loop() {
     pixelTime(tm, bTime);
 
     // quarter hour indicator
-    if ( (tm.Minute % 15 == 0) && tm.Second == 0) {
+    if ( (tm.Minute % 15 == 0) && (tm.Second == 0) ) {
       quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
     }
     // turn them all off for second indicator flash
@@ -257,13 +259,16 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   solidColor(0,0,0); // turn them all off
   pixels.show();
 
+  /* quarter_colour = Wheel(map(hour,0,24,0,255));*/
+
   if ((hour == 12 || hour == 0 ) && minute == 0) {
-    rainbowCycle(25); // special edition hour for midday
+    rainbowCycle(46); // special edition hour for midday (46 will cycle for almost 1 min 1280*46)
   } else { // fade columns in and out
     for (j = 0; j <= 255; j += 5) {
       for (y = 0; y < no_rows; y++) {
         for (x = 0; x < PIXEL_ROW; x++) {
-        setPixel(pixelMap[x][y],1,pixels.Color(0,0,j));
+        setPixel(pixelMap[x][y],1,quarter_colour);
+        pixels.setBrightness(j);
         }
       }
       pixels.show();
@@ -273,12 +278,16 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
     for (j = 255; j >= 0; j -= 5) {
       for (y = 0; y < no_rows; y++) {
         for (x = 0; x < PIXEL_ROW; x++) {
-        setPixel(pixelMap[x][y],1,pixels.Color(0,0,j));
+        setPixel(pixelMap[x][y],1,quarter_colour);
+        pixels.setBrightness(j);
         }
       }
       pixels.show();
       delay(10);
     }
+
+    // reset brightness on way out
+    pixels.setBrightness(brightness);
   }
 }
 
