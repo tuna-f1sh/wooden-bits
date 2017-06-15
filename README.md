@@ -10,6 +10,7 @@ ______ _                          _____ _            _
                            __/ |                          
                           |___/                           
 ```
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CFA7TQXNFURLQ)
 
 # Binary Clock
 
@@ -83,3 +84,7 @@ License.
 * **WS2812 Driver:** https://github.com/626Pilot/RaspberryPi-NeoPixel-WS2812
 
 John Whittington [@j_whittington](http://www.twitter.com/j_whittington) http://www.jbrengineering.co.uk 2014
+
+# Support and License
+
+Software is GPL-3.0, hardware (PCB, OpenSCAD designs) is CC Attribution-NonCommerical 4.0. If you use or derive work from this, please attribute back to the repo and share link back to www.jbrengineering.co.uk.
