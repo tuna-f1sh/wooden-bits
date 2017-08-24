@@ -1,7 +1,7 @@
 // Wooden Bits by John Whittington - www.jbrengineering.co.uk
 // http://engineer.john-whittington.co.uk/2014/12/wooden-bits-binary-clock/
 //
-// This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/4.0/// 
+// This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/// 
 // Please include this header with any modification.
 
 // Laser cutter beam kerf
@@ -259,7 +259,7 @@ module lightDivider(cable_run)
           rounded_square([11,12],2);
           /* translate([0,-15+4.5]) text("5V",size=4,halign="center",valign="center");*/
         }
-        translate([hdiv-12.5, wdiv-materialThickness-6]) { 
+        translate([hdiv-12.5, wdiv-materialThickness-7]) { 
           circle(r=button_r-LaserBeamDiameter/2,center=true);
           /* translate([0,-15+2.5]) text("SET",size=4,halign="center",valign="center");*/
         }

@@ -88,4 +88,12 @@ John Whittington [@j_whittington](http://www.twitter.com/j_whittington) http://w
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CFA7TQXNFURLQ)
 
-Software is GPL-3.0, hardware (PCB, OpenSCAD designs) is CC Attribution-NonCommerical 4.0. If you use or derive work from this, please attribute back to the repo and share link back to www.jbrengineering.co.uk.
+**Software** is [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+
+**Hardware (KiCad, OpenSCAD, design exports etc.)** is [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-sa/4.0/)
+
+I make many of my projects Open Source so others can learn as I have, but
+please remember to follow the license terms and attribute any derivations or
+code reuse. You can do this by linking back to the project or
+[jbrengineering.co.uk](www.jbrengineering.co.uk). Feel free to click the
+donate button above if you do use the source :).
