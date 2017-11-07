@@ -139,6 +139,8 @@ static void setColour(void) {
 }
 
 void setup() {
+  byte bVersion[4] = {B0000};
+
   attachInterrupt(0, setISR, FALLING);
   // pull-up interrupt
   pinMode(2,INPUT_PULLUP);
@@ -152,6 +154,12 @@ void setup() {
 
   pixels.setBrightness(brightness);
   main_colour = pixels.Color(255,255,255);
+
+  // Show software version at boot
+  bVersion[3] = VERSION_MINOR;
+  bVersion[2] = VERSION_MAJOR;
+  setMatrix(bVersion, sizeof(bVersion)/sizeof(bVersion[1]), main_colour, pixels.Color(255,0,0));
+  delay(2000);
 
   // wipe through rgb for LED debug
   colorWipe(pixels.Color(255,0,0),WIPE_DELAY);

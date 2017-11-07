@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+#define VERSION_MINOR  6
+#define VERSION_MAJOR  1
+
 // Which pin on the Arduino is connected to the NeoPixels?
 #define PIN            6
 // matrix diamentions

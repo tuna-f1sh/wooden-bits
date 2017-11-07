@@ -1,7 +1,7 @@
 BOARD_TAG    = woodenbits
 # BOARD_TAG    = uno
 
-ISP_PROG = atmelice_isp
+ISP_PROG = usbasp
 
 BOARDS_TXT = wbboards.txt
 
