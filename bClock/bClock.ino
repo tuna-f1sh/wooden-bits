@@ -201,7 +201,7 @@ void loop() {
     pixelTime(tm, bTime);
 
     // quarter hour indicator
-    if ( (tm.Minute % 15 == 0) && (tm.Second == 0) ) {
+    if ( (tm.Minute % 15 == 0) && ((tm.Second == 0) || tm.Hour == 12 || tm.Hour == 0) ) {
       quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
     }
     // turn them all off for second indicator flash
@@ -260,7 +260,7 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   pixels.show();
 
   if ((hour == 12 || hour == 0 ) && minute == 0) {
-    rainbowCycle(46); // special edition hour for midday (46 will cycle for almost 1 min 1280*46)
+    rainbowCycle(48); // special edition hour for midday (46 will cycle for just over 1 min 1280*48)
   } else { // fade columns in and out
 
     hour = ((minute == 0) && (hour > 0)) ? (hour - 1) : hour; // full display should be colour of previous hour

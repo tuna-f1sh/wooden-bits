@@ -1,7 +1,7 @@
 BOARD_TAG    = woodenbits
 # BOARD_TAG    = uno
 
-ISP_PROG = usbasp
+ISP_PROG = atmelice_isp
 
 BOARDS_TXT = wbboards.txt
 
@@ -12,5 +12,4 @@ CXXFLAGS_STD = -std=gnu++11 -fno-threadsafe-statics
 
 # ARDUINO_QUIET = 1
 
-# include ${ARDMK_DIR}/Arduino.mk
-include ~/Projects/General/Arduino-Makefile/Arduino.mk
+include ${ARDMK_DIR}/Arduino.mk
