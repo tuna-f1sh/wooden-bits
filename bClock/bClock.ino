@@ -465,6 +465,8 @@ void rainbowCycle(uint8_t wait) {
       pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
     }
     pixels.show();
+    // exit if button is pressed to allow acting on
+    if (flag) {i = pixels.numPixels(); j = 256 * 5; }
     delay(wait);
   }
 }
