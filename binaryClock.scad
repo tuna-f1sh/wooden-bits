@@ -252,7 +252,7 @@ module lightDivider(cable_run)
     difference() {
       square([hdiv,wdiv-materialThickness]); // take material thickness off back for single backing piece
       if (cable_run == 1) { // mid-pieces have run for able
-        translate([hdiv/2,wdiv-materialThickness]) circle(4); // cut a half circle for cable run
+        translate([hdiv/2,wdiv-materialThickness]) circle(wire_r); // cut a half circle for cable run
       } else if (cable_run == 2) { // one end piece has power connector
         translate([13.5-(11/2), wdiv-materialThickness-5-(8/2)]) {
           /* circle(r=power_r-LaserBeamDiameter/2,center=true);*/
