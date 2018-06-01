@@ -209,7 +209,7 @@ void loop() {
     pixelTime(tm, bTime);
 
     // quarter hour indicator
-    if ( (tm.Minute % 15 == 0) && ((tm.Second == 0) || tm.Hour == 12 || tm.Hour == 0) ) {
+    if ( ((tm.Minute % 15 == 0) && (tm.Second == 0)) || ((tm.Hour == 12 || tm.Hour == 0) && tm.Minute == 0) ) {
       quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
     }
     // turn them all off for second indicator flash
