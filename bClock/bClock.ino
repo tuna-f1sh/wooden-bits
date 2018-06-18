@@ -173,7 +173,7 @@ void setup() {
 
 void loop() {
   static tmElements_t tm; // time struct holder
-  static uint16_t setDelay = 0;
+  static uint32_t setDelay = 0;
   // nyble vector for matrix columns
   // [hour/10, hour/1, minute/10, minute/1]
   byte bTime[4] = {B0000};
@@ -209,7 +209,7 @@ void loop() {
     pixelTime(tm, bTime);
 
     // quarter hour indicator
-    if ( ((tm.Minute % 15 == 0) && (tm.Second == 0)) || ((tm.Hour == 12 || tm.Hour == 0) && tm.Minute == 0) ) {
+    if ( (tm.Minute % 15 == 0) && (tm.Second == 0) ) {
       quarterHour(tm.Hour, tm.Minute, QUARTER_WAIT);
     }
     // turn them all off for second indicator flash
@@ -259,6 +259,7 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
   uint8_t y;
   uint8_t x;
   int16_t j;
+  uint32_t wait_ms = 0;
   // light number of rows depending on the hour quarter (floored to be safe)
   no_rows = floor(minute / 15) * height;
   // one hour indicator is actually 0 but we want full display
@@ -284,7 +285,8 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
       pixels.show();
       delay(10);
     }
-    delay(wait); // show for 10s
+    wait_ms = millis();
+    while ( ((millis() - wait_ms) < wait) && !flag );; // hold on with dirty escape with ISR
     for (j = 255; j >= 0; j -= 5) {
       for (y = 0; y < no_rows; y++) {
         for (x = 0; x < PIXEL_ROW; x++) {
