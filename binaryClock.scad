@@ -67,7 +67,8 @@ echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 /* wood();*/
 fullWood();
 /* screwPlate();*/
-/* lightDivider(2);*/
+/* lightDivider(2); */
+/* pcb_holder(); */
 
 // --- END EXPORT ---
 
@@ -254,14 +255,10 @@ module lightDivider(cable_run)
       if (cable_run == 1) { // mid-pieces have run for able
         translate([hdiv/2,wdiv-materialThickness]) circle(wire_r); // cut a half circle for cable run
       } else if (cable_run == 2) { // one end piece has power connector
-        translate([13.5-(11/2), wdiv-materialThickness-5-(8/2)]) {
+        translate([hdiv/2-12, -2]) {
           /* circle(r=power_r-LaserBeamDiameter/2,center=true);*/
-          rounded_square([11,12],2);
+            rounded_square([24,9],2);
           /* translate([0,-15+4.5]) text("5V",size=4,halign="center",valign="center");*/
-        }
-        translate([hdiv-12.5, wdiv-materialThickness-7]) { 
-          circle(r=button_r-LaserBeamDiameter/2,center=true);
-          /* translate([0,-15+2.5]) text("SET",size=4,halign="center",valign="center");*/
         }
       }
     }
@@ -328,4 +325,11 @@ module rounded_square(d,r) {
         translate([r,r]) square([d[0]-2*r, d[1]-2*r]);
         circle(r);
     }
+}
+
+module pcb_holder() {
+  difference() {
+    square([lightWidth, lightHeight]);
+    translate([lightWidth/2-3.4, lightHeight/2]) import (file = "pcb.dxf");
+  }
 }
