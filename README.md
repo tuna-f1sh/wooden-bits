@@ -34,6 +34,11 @@ can be used as a map reference for other functions.
 
 For more details, see my blog post: http://wp.me/p2C0Bi-7R
 
+## Buy One!
+
+[My Shop](https://shop.jbrengineering.co.uk/product/wooden-bits-binary-wall-clock/)
+[Etsy](https://www.etsy.com/uk/listing/224396022/wooden-bits-laser-cut-wooden-binary)
+
 ## Requirements
 
 ### Hardware
@@ -43,6 +48,7 @@ For more details, see my blog post: http://wp.me/p2C0Bi-7R
   be connected to pin 6 on Arduino or pin 18 on rPi by default.
 * For Arduino you'll need a DS1307RTC/DS3231RTC chip, already set with the time (see
   library page).
+* There is a KiCAD PCB project, which is what I now use for clocks I sell.
 
 ### Arduino Libraries  
 
