@@ -1,4 +1,4 @@
-BOARD_TAG    = woodenbits
+BOARD_TAG    = woodenbits16
 # BOARD_TAG    = uno
 
 ISP_PROG = usbasp

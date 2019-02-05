@@ -77,7 +77,8 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 static uint32_t main_colour;
 static uint32_t quarter_colour = pixels.Color(0,0,255);
 void setByteMatrix(uint8_t bMatrix[], size_t size, uint32_t color1, uint32_t color2);
-const char* message = "Keep on proding!";
+const char message1[] = "Keep on proding!";
+const char message2[] = "Hello Crux from Switzerland!";
 
 /* ---- SETUP ---- */
 /*=====================*/
@@ -111,17 +112,17 @@ static void processISR(void) {
   }
 }
 
-static void writeAscii(const char *string, uint8_t len) {
+static void writeAscii(const char *string, size_t len) {
   byte bMatrix[4] = {B0000};
   uint8_t c = 0;
 
   for (c = 0; c < len-1; c++) {
-    bMatrix[0] = string[c] & 0x0F;
-    bMatrix[1] = (string[c] >> 8) & 0x0F;
-    bMatrix[2] = string[c+1] & 0x0F;
-    bMatrix[3] = (string[c+1] >> 8) & 0x0F;
+    bMatrix[3] = string[c] & 0x0F;
+    bMatrix[2] = (string[c] >> 4) & 0x0F;
+    bMatrix[1] = string[c+1] & 0x0F;
+    bMatrix[0] = (string[c+1] >> 4) & 0x0F;
     setByteMatrix(bMatrix, sizeof(bMatrix)/sizeof(bMatrix[1]), pixels.Color(255,0,0), pixels.Color(255,255,0));
-    delay(1000);
+    delay(100);
   }
 }
 
@@ -182,6 +183,8 @@ void setup() {
   colorWipe(pixels.Color(0,255,0),WIPE_DELAY);
   colorWipe(pixels.Color(0,0,255),WIPE_DELAY);
   colorWipe(pixels.Color(0,0,0),WIPE_DELAY);
+
+  writeAscii(message2, sizeof(message2));
 }
 
 /* ---- LOOP ---- */
@@ -286,7 +289,7 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
 
   if ((hour == 12 || hour == 0 ) && minute == 0) {
     rainbowCycle(48); // special edition hour for midday (46 will cycle for just over 1 min 1280*48)
-    writeAscii(message, sizeof(message));
+    writeAscii(message1, sizeof(message1));
   } else { // fade columns in and out
 
     hour = ((minute == 0) && (hour > 0)) ? (hour - 1) : hour; // full display should be colour of previous hour
@@ -322,15 +325,15 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
 
 void setByteMatrix(uint8_t bMatrix[], size_t size, uint32_t color1, uint32_t color2) {
   uint8_t i; // binary set matrix
-  uint8_t yy; // full column inc.
+  int8_t yy; // full column inc.
   uint8_t xx = 0; // full row inc.
 
   for ( i = 0; i < size; i++) {
-    for (yy = 0;yy < PIXEL_COLUMN; yy += height) {
+    for (yy = PIXEL_COLUMN;yy >= 0; yy -= height) {
       if (xx % 2) {
-        setPixel(pixelMap[xx][yy],((bMatrix[i] >> yy/height) & 1),color1);
-      } else {
         setPixel(pixelMap[xx][yy],((bMatrix[i] >> yy/height) & 1),color2);
+      } else {
+        setPixel(pixelMap[xx][yy],((bMatrix[i] >> yy/height) & 1),color1);
       }
     }
     xx += width;
