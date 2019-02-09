@@ -77,8 +77,7 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 static uint32_t main_colour;
 static uint32_t quarter_colour = pixels.Color(0,0,255);
 void setByteMatrix(uint8_t bMatrix[], size_t size, uint32_t color1, uint32_t color2);
-const char message1[] = "Keep on proding!";
-const char message2[] = "Hello Crux from Switzerland!";
+const char message[] = "that tickles...";
 
 /* ---- SETUP ---- */
 /*=====================*/
@@ -122,7 +121,7 @@ static void writeAscii(const char *string, size_t len) {
     bMatrix[1] = string[c+1] & 0x0F;
     bMatrix[0] = (string[c+1] >> 4) & 0x0F;
     setByteMatrix(bMatrix, sizeof(bMatrix)/sizeof(bMatrix[1]), pixels.Color(255,0,0), pixels.Color(255,255,0));
-    delay(100);
+    delay(300);
   }
 }
 
@@ -173,8 +172,9 @@ void setup() {
   main_colour = pixels.Color(255,255,255);
 
   // Show software version at boot
-  bVersion[3] = VERSION_MINOR;
-  bVersion[2] = VERSION_MAJOR;
+  bVersion[3] = VERSION_PATCH;
+  bVersion[2] = VERSION_MINOR;
+  bVersion[1] = VERSION_MAJOR;
   setMatrix(bVersion, sizeof(bVersion)/sizeof(bVersion[1]), main_colour, pixels.Color(255,0,0));
   delay(2000);
 
@@ -184,7 +184,7 @@ void setup() {
   colorWipe(pixels.Color(0,0,255),WIPE_DELAY);
   colorWipe(pixels.Color(0,0,0),WIPE_DELAY);
 
-  writeAscii(message2, sizeof(message2));
+  if (!digitalRead(2)) writeAscii(message, sizeof(message));
 }
 
 /* ---- LOOP ---- */
@@ -289,7 +289,6 @@ void quarterHour(uint8_t hour, uint8_t minute, uint16_t wait) {
 
   if ((hour == 12 || hour == 0 ) && minute == 0) {
     rainbowCycle(48); // special edition hour for midday (46 will cycle for just over 1 min 1280*48)
-    writeAscii(message1, sizeof(message1));
   } else { // fade columns in and out
 
     hour = ((minute == 0) && (hour > 0)) ? (hour - 1) : hour; // full display should be colour of previous hour

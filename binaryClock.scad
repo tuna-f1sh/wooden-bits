@@ -65,9 +65,9 @@ echo((4*( lightHeight+spacing ))*(4*(lightWidth+spacing)));
 /* fullPrint();*/
 /* acrylic();*/
 /* wood();*/
-/* fullWood(); */
+fullWood();
 /* screwPlate();*/
-lightDivider(2);
+/* lightDivider(2); */
 /* pcb_holder(); */
 
 // --- END EXPORT ---
